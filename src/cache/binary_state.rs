@@ -11,10 +11,9 @@
 use std::path::Path;
 use std::time::Instant;
 
-use alloy_primitives::map::HashMap;
 use alloy_primitives::{Address, B256, U256};
-use foundry_fork_db::BlockchainDb;
-use revm::state::AccountInfo;
+use crate::foundry_fork_db::BlockchainDb;
+use crate::revm::state::AccountInfo;
 use serde::{Deserialize, Serialize};
 use tracing::{debug, warn};
 
@@ -169,7 +168,7 @@ pub fn load_binary_state(blockchain_db: &BlockchainDb, path: &Path) -> bool {
         let mut storage = blockchain_db.storage().write();
         for (addr, slots) in state.storage {
             total_slots += slots.len();
-            let map: HashMap<U256, U256> = slots.into_iter().collect();
+            let map = slots.into_iter().collect();
             storage.insert(addr, map);
         }
     }
@@ -190,7 +189,7 @@ pub fn load_binary_state(blockchain_db: &BlockchainDb, path: &Path) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use foundry_fork_db::cache::BlockchainDbMeta;
+    use crate::foundry_fork_db::cache::BlockchainDbMeta;
 
     /// A unique, freshly-created temp dir keyed by pid so concurrent `cargo
     /// test` processes never share (and never `remove_dir_all`) each other's
@@ -245,14 +244,14 @@ mod tests {
         // Add storage
         {
             let mut storage = db.storage().write();
-            let mut slots1 = HashMap::default();
+            let mut slots1 = alloy_primitives::map::U256HashMap::default();
             slots1.insert(U256::from(0), U256::from(42));
             slots1.insert(U256::from(1), U256::from(99));
-            storage.insert(addr1, slots1);
+            storage.insert(addr1, slots1.into_iter().collect());
 
-            let mut slots2 = HashMap::default();
+            let mut slots2 = alloy_primitives::map::U256HashMap::default();
             slots2.insert(U256::from(4), U256::from(777));
-            storage.insert(addr2, slots2);
+            storage.insert(addr2, slots2.into_iter().collect());
         }
 
         // Save

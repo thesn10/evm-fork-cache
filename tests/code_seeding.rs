@@ -15,10 +15,10 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 use alloy_primitives::{Address, B256, Bytes, U256};
-use alloy_provider::RootProvider;
-use alloy_provider::network::AnyNetwork;
-use alloy_rpc_client::RpcClient;
-use alloy_transport::mock::Asserter;
+use evm_fork_cache::alloy_provider::RootProvider;
+use evm_fork_cache::alloy_provider::network::AnyNetwork;
+use evm_fork_cache::alloy_rpc_client::RpcClient;
+use evm_fork_cache::alloy_provider::mock::Asserter;
 use anyhow::Result;
 use common::{
     failing_fields_fetcher, install_default_account, install_mock_erc20, mock_erc20_runtime,
@@ -27,7 +27,7 @@ use common::{
 use evm_fork_cache::cache::{CacheConfig, CodeSeedState, EvmCache};
 use evm_fork_cache::errors::CacheError;
 use evm_fork_cache::multicall::MULTICALL3_ADDRESS;
-use revm::context::result::ExecutionResult;
+use evm_fork_cache::revm::context::result::ExecutionResult;
 
 /// Minimal runtime: `PUSH1 01 PUSH1 00 MSTORE PUSH1 20 PUSH1 00 RETURN` —
 /// returns one 32-byte word (value 1) and touches no storage or env, so a
@@ -243,7 +243,7 @@ async fn override_and_deploy_targets_join_the_etched_set() -> Result<()> {
         Some(CodeSeedState::Etched { code_hash }) => {
             assert_eq!(
                 *code_hash,
-                revm::state::Bytecode::new_raw(return_one_bytes()).hash_slow(),
+                evm_fork_cache::revm::state::Bytecode::new_raw(return_one_bytes()).hash_slow(),
                 "the etched mark must record the deployed runtime's hash"
             );
         }
@@ -316,7 +316,7 @@ async fn persistence_round_trip_preserves_marks() -> Result<()> {
         // account. Real RPC-origin accounts land in layer 2 (the backend
         // map, which is what persists) — mirror that here.
         let bytecode = mock_erc20_runtime();
-        let info = revm::state::AccountInfo {
+        let info = evm_fork_cache::revm::state::AccountInfo {
             balance: U256::ZERO,
             nonce: 1,
             code_hash: bytecode.hash_slow(),
@@ -580,7 +580,7 @@ async fn verify_classifies_not_deployed_and_codeless() -> Result<()> {
     cache.set_account_fields_fetcher(stub_fields_fetcher(
         HashMap::from([
             (undeployed, (U256::ZERO, B256::ZERO)),
-            (eoa, (U256::from(5u64), revm::primitives::KECCAK_EMPTY)),
+            (eoa, (U256::from(5u64), evm_fork_cache::revm::primitives::KECCAK_EMPTY)),
         ]),
         calls.clone(),
     ));

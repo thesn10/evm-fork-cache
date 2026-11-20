@@ -42,7 +42,7 @@ where
     /// This is a pure view, not proof that each source has delivered through any
     /// block. Consumers may combine source coverage with ordering evidence;
     /// multiple independent filters never share an inferred successor barrier.
-    pub fn planned_log_subscription_filters(&self) -> Vec<alloy_rpc_types_eth::Filter> {
+    pub fn planned_log_subscription_filters(&self) -> Vec<crate::alloy_rpc_types_eth::Filter> {
         self.log_stream_filters()
     }
 

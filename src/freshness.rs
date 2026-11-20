@@ -80,10 +80,10 @@ use std::sync::atomic::{AtomicBool, AtomicU64, AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use alloy_eips::BlockId;
-use alloy_eips::eip2930::AccessList;
+use crate::alloy_eips::BlockId;
+use crate::alloy_eips::eip2930::AccessList;
 use alloy_primitives::{Address, Bytes, U256};
-use revm::context::result::ExecutionResult;
+use crate::revm::context::result::ExecutionResult;
 use tokio::task::JoinHandle;
 
 use crate::cache::{
@@ -1383,21 +1383,16 @@ fn run_validator(input: ValidatorInput) -> Validation {
 /// halted; `output` carries the `Success`/`Revert` payload (empty on `Halt`),
 /// so a corrected view-call's new return value is observable here.
 fn result_to_sim(result: ExecutionResult, access_list: &AccessList) -> CallSimulationResult {
-    let (status, gas_used, logs, output) = match result {
-        ExecutionResult::Success {
-            gas_used,
-            logs,
-            output,
-            ..
-        } => (SimStatus::Success, gas_used, logs, output.into_data()),
-        ExecutionResult::Revert { gas_used, output } => {
-            (SimStatus::Revert, gas_used, Vec::new(), output)
+    let gas_used = crate::execution_gas_used(&result);
+    let (status, logs, output) = match result {
+        ExecutionResult::Success { logs, output, .. } => {
+            (SimStatus::Success, logs, output.into_data())
         }
-        ExecutionResult::Halt { gas_used, reason } => (
+        ExecutionResult::Revert { output, .. } => (SimStatus::Revert, Vec::new(), output),
+        ExecutionResult::Halt { reason, .. } => (
             SimStatus::Halt {
                 reason: format!("{reason:?}"),
             },
-            gas_used,
             Vec::new(),
             Bytes::new(),
         ),

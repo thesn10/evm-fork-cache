@@ -23,13 +23,13 @@ use std::hint::black_box;
 use std::sync::Arc;
 
 use alloy_primitives::{Address, Bytes, address};
-use alloy_provider::ProviderBuilder;
-use alloy_provider::network::AnyNetwork;
+use evm_fork_cache::alloy_provider::ProviderBuilder;
+use evm_fork_cache::alloy_provider::network::AnyNetwork;
 use alloy_sol_types::{SolCall, sol};
 use criterion::{Criterion, criterion_group, criterion_main};
 use evm_fork_cache::cache::EvmCache;
-use revm::context::result::ExecutionResult;
-use revm::primitives::hardfork::SpecId;
+use evm_fork_cache::revm::context::result::ExecutionResult;
+use evm_fork_cache::revm::primitives::hardfork::SpecId;
 use tokio::runtime::Runtime;
 
 /// USDC (6 decimals) — a ubiquitous mainnet ERC20.

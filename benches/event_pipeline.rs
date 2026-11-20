@@ -15,15 +15,15 @@ use std::hint::black_box;
 use std::sync::Arc;
 
 use alloy_primitives::{Address, Bytes, Log, U256, hex, keccak256};
-use alloy_provider::RootProvider;
-use alloy_provider::network::AnyNetwork;
-use alloy_rpc_client::RpcClient;
-use alloy_transport::mock::Asserter;
+use evm_fork_cache::alloy_provider::RootProvider;
+use evm_fork_cache::alloy_provider::network::AnyNetwork;
+use evm_fork_cache::alloy_rpc_client::RpcClient;
+use evm_fork_cache::alloy_provider::mock::Asserter;
 use criterion::{BenchmarkId, Criterion, Throughput, criterion_group, criterion_main};
 use evm_fork_cache::cache::EvmCache;
 use evm_fork_cache::events::{DecoderRegistry, EventDecoder, EventPipeline, StateView};
 use evm_fork_cache::{Erc20TransferDecoder, StateUpdate};
-use revm::state::{AccountInfo, Bytecode};
+use evm_fork_cache::revm::state::{AccountInfo, Bytecode};
 use tokio::runtime::{Builder, Runtime};
 
 const MOCK_ERC20_RUNTIME_HEX: &str = include_str!("../fixtures/mock_erc20_runtime.hex");

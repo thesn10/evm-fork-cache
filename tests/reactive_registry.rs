@@ -6,9 +6,9 @@ use std::sync::{
     atomic::{AtomicUsize, Ordering},
 };
 
-use alloy_network::Ethereum;
+use evm_fork_cache::alloy_network::Ethereum;
 use alloy_primitives::{Address, B256};
-use alloy_rpc_types_eth::Filter;
+use evm_fork_cache::alloy_rpc_types_eth::Filter;
 use proptest::prelude::*;
 
 use evm_fork_cache::events::StateView;
@@ -95,7 +95,7 @@ struct CountingAddressMatcher {
 }
 
 impl evm_fork_cache::reactive::LogMatcher for CountingAddressMatcher {
-    fn matches(&self, log: &alloy_rpc_types_eth::Log) -> bool {
+    fn matches(&self, log: &evm_fork_cache::alloy_rpc_types_eth::Log) -> bool {
         self.calls.fetch_add(1, Ordering::Relaxed);
         log.address() == self.address
     }
@@ -113,7 +113,7 @@ struct CountingDataMatcher {
 }
 
 impl evm_fork_cache::reactive::LogMatcher for CountingDataMatcher {
-    fn matches(&self, log: &alloy_rpc_types_eth::Log) -> bool {
+    fn matches(&self, log: &evm_fork_cache::alloy_rpc_types_eth::Log) -> bool {
         self.calls.fetch_add(1, Ordering::Relaxed);
         log.inner.data.data.as_ref().get(..self.expected.len()) == Some(self.expected.as_slice())
     }
@@ -431,8 +431,8 @@ fn reactive_registry_unregisters_one_handler_without_rebuilding_others() {
     assert_eq!(registry.interests().len(), 2);
 }
 
-fn rpc_log(address: Address) -> alloy_rpc_types_eth::Log {
-    alloy_rpc_types_eth::Log {
+fn rpc_log(address: Address) -> evm_fork_cache::alloy_rpc_types_eth::Log {
+    evm_fork_cache::alloy_rpc_types_eth::Log {
         inner: alloy_primitives::Log::new_unchecked(
             address,
             vec![],
@@ -448,8 +448,8 @@ fn rpc_log(address: Address) -> alloy_rpc_types_eth::Log {
     }
 }
 
-fn rpc_log_with_data(data: &[u8]) -> alloy_rpc_types_eth::Log {
-    alloy_rpc_types_eth::Log {
+fn rpc_log_with_data(data: &[u8]) -> evm_fork_cache::alloy_rpc_types_eth::Log {
+    evm_fork_cache::alloy_rpc_types_eth::Log {
         inner: alloy_primitives::Log::new_unchecked(
             Address::ZERO,
             vec![],
@@ -520,8 +520,8 @@ fn planned_filters(filters: Vec<Filter>) -> Vec<Filter> {
 fn shaped_log(
     address: Address,
     topics: impl IntoIterator<Item = B256>,
-) -> alloy_rpc_types_eth::Log {
-    alloy_rpc_types_eth::Log {
+) -> evm_fork_cache::alloy_rpc_types_eth::Log {
+    evm_fork_cache::alloy_rpc_types_eth::Log {
         inner: alloy_primitives::Log::new_unchecked(
             address,
             topics.into_iter().collect(),

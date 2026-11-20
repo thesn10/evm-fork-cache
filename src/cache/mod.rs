@@ -52,18 +52,18 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
-use alloy_consensus::BlockHeader;
-use alloy_eips::eip2930::AccessList;
-use alloy_eips::{BlockId, BlockNumberOrTag};
-use alloy_network::BlockResponse;
+use crate::alloy_consensus::BlockHeader;
+use crate::alloy_eips::eip2930::AccessList;
+use crate::alloy_eips::{BlockId, BlockNumberOrTag};
+use crate::alloy_network::BlockResponse;
 use alloy_primitives::{Address, B256, Bytes, I256, Log, TxKind, U256, keccak256};
-use alloy_provider::{Provider, network::AnyNetwork};
-use alloy_rpc_types_eth::TransactionRequest;
+use crate::alloy_provider::{Provider, network::AnyNetwork};
+use crate::alloy_rpc_types_eth::TransactionRequest;
 use alloy_sol_types::{SolCall, SolValue, sol};
-use foundry_fork_db::{
+use crate::foundry_fork_db::{
     BlockchainDb, SharedBackend, backend::BlockingMode, cache::BlockchainDbMeta,
 };
-use revm::{
+use crate::revm::{
     Context, ExecuteCommitEvm, ExecuteEvm, InspectEvm, MainBuilder, MainContext,
     context::{BlockEnv, CfgEnv, Journal, LocalContext, TxEnv, result::ExecutionResult},
     context_interface::JournalTr,
@@ -95,7 +95,7 @@ pub use code_seeds::CodeSeedState;
 use journal_access_list::{extract_access_list, merge_access_lists};
 
 /// Re-export AnyNetwork for callers that need to construct providers.
-pub use alloy_provider::network::AnyNetwork as AnyNetworkType;
+pub use crate::alloy_provider::network::AnyNetwork as AnyNetworkType;
 
 /// The database type used by the EVM cache.
 /// CacheDB wraps SharedBackend which lazily fetches data from RPC on-demand.
@@ -494,8 +494,8 @@ pub(crate) fn unix_timestamp_secs_saturating(time: SystemTime) -> u64 {
 /// account reads a missing slot as ZERO (the backend is **not** consulted);
 /// otherwise it falls through to the backend.
 fn read_slot_account_state_aware<S1, S2>(
-    overlay: &std::collections::HashMap<Address, revm::database::DbAccount, S1>,
-    storage: &std::collections::HashMap<Address, foundry_fork_db::cache::StorageInfo, S2>,
+    overlay: &std::collections::HashMap<Address, crate::revm::database::DbAccount, S1>,
+    storage: &std::collections::HashMap<Address, crate::foundry_fork_db::cache::StorageInfo, S2>,
     address: Address,
     slot: U256,
 ) -> Option<U256>
@@ -522,8 +522,8 @@ where
 /// Backend (layer 2) is always written; the overlay (layer 1) is written only if
 /// an overlay account already exists (never materialize a new overlay account).
 fn write_slot_into<S1, S2>(
-    overlay: &mut std::collections::HashMap<Address, revm::database::DbAccount, S1>,
-    storage: &mut std::collections::HashMap<Address, foundry_fork_db::cache::StorageInfo, S2>,
+    overlay: &mut std::collections::HashMap<Address, crate::revm::database::DbAccount, S1>,
+    storage: &mut std::collections::HashMap<Address, crate::foundry_fork_db::cache::StorageInfo, S2>,
     address: Address,
     slot: U256,
     value: U256,
@@ -702,7 +702,7 @@ where
                         .chunks(batch_size)
                         .map(|chunk| {
                             let client = provider.client();
-                            let mut batch = alloy_rpc_client::BatchRequest::new(client);
+                            let mut batch = crate::alloy_rpc_client::BatchRequest::new(client);
                             let mut waiters = Vec::with_capacity(chunk.len());
 
                             for &(addr, slot) in chunk {
@@ -1400,10 +1400,10 @@ fn apply_storage_fetch_strategy<P>(
     }
 }
 
-type CacheEvm<'a> = revm::MainnetEvm<
+type CacheEvm<'a> = crate::revm::MainnetEvm<
     Context<BlockEnv, TxEnv, CfgEnv, &'a mut ForkCacheDB, Journal<&'a mut ForkCacheDB>, ()>,
 >;
-type InspectorCacheEvm<'a, INSP> = revm::MainnetEvm<
+type InspectorCacheEvm<'a, INSP> = crate::revm::MainnetEvm<
     Context<BlockEnv, TxEnv, CfgEnv, &'a mut ForkCacheDB, Journal<&'a mut ForkCacheDB>, ()>,
     INSP,
 >;
@@ -1655,6 +1655,8 @@ pub struct CallSimulationResult {
 }
 
 sol!(
+    #![sol(alloy_contract = crate::alloy_contract)]
+
     #[sol(rpc)]
     contract IERC20 {
         function balanceOf(address target) returns (uint256);
@@ -3099,7 +3101,7 @@ impl EvmCache {
         // matches what `write_account_info_through` stores (a self-consistent diff,
         // no phantom/under-reported code_hash change).
         if info.code_hash == B256::ZERO {
-            info.code_hash = revm::primitives::KECCAK_EMPTY;
+            info.code_hash = crate::revm::primitives::KECCAK_EMPTY;
         }
         Some(info)
     }
@@ -3113,7 +3115,7 @@ impl EvmCache {
         // code_hash denotes empty code → KECCAK_EMPTY. Otherwise the overlay would
         // hold KECCAK_EMPTY while the backend kept ZERO for the same account.
         if info.code_hash == B256::ZERO {
-            info.code_hash = revm::primitives::KECCAK_EMPTY;
+            info.code_hash = crate::revm::primitives::KECCAK_EMPTY;
         }
         let overlay_present = self.db.cache.accounts.contains_key(&address);
         {
@@ -3581,7 +3583,7 @@ impl EvmCache {
     /// instead: it merges both layers into an `Arc<`[`EvmSnapshot`]`>` that is
     /// `Send + Sync` and can be shared with parallel simulators via
     /// [`EvmOverlay`].
-    pub fn checkpoint(&self) -> revm::database::Cache {
+    pub fn checkpoint(&self) -> crate::revm::database::Cache {
         self.db.cache.clone()
     }
 
@@ -3592,7 +3594,7 @@ impl EvmCache {
     /// overlay mutations made since it was taken. The BlockchainDb backend is
     /// untouched. This is the in-place counterpart to the cross-thread
     /// [`snapshot`](Self::snapshot) / [`EvmOverlay`] path.
-    pub fn restore(&mut self, checkpoint: revm::database::Cache) {
+    pub fn restore(&mut self, checkpoint: crate::revm::database::Cache) {
         self.db.cache = checkpoint;
     }
 
@@ -4539,7 +4541,7 @@ impl EvmCache {
         // Load account info via SharedBackend (fetches from RPC if not cached).
         // basic_ref populates BlockchainDb; we also insert into the CacheDB
         // overlay so the account is immediately available for direct reads.
-        use revm::database_interface::DatabaseRef;
+        use crate::revm::database_interface::DatabaseRef;
         let info = self
             .backend
             .basic_ref(address)
@@ -4561,7 +4563,7 @@ impl EvmCache {
     /// fresh data from RPC and caches it in BlockchainDb. Subsequent EVM SLOADs find
     /// the value there without additional RPC calls.
     pub fn read_storage_slot(&mut self, address: Address, slot: U256) -> Result<U256> {
-        use revm::database_interface::DatabaseRef;
+        use crate::revm::database_interface::DatabaseRef;
         self.backend
             .storage_ref(address, slot)
             .map_err(|e| CacheError::StorageRead {
@@ -4672,7 +4674,7 @@ impl EvmCache {
         inspector: I,
     ) -> Result<(ExecutionResult, I)>
     where
-        I: for<'a> revm::Inspector<
+        I: for<'a> crate::revm::Inspector<
                 Context<
                     BlockEnv,
                     TxEnv,
@@ -5171,7 +5173,7 @@ impl EvmCache {
                     if account.is_touched() {
                         access_list.accounts.insert(*address);
                         let code_hash = account.info.code_hash;
-                        if code_hash != B256::ZERO && code_hash != revm::primitives::KECCAK_EMPTY {
+                        if code_hash != B256::ZERO && code_hash != crate::revm::primitives::KECCAK_EMPTY {
                             access_list.code_hashes.insert(code_hash);
                         }
                         for slot_key in account.storage.keys() {
@@ -5208,7 +5210,8 @@ impl EvmCache {
         commit: bool,
     ) -> Result<(Vec<Log>, u64)> {
         let result = self.call(from, to, calldata, commit)?;
-        if let ExecutionResult::Success { logs, gas_used, .. } = result {
+        let gas_used = crate::execution_gas_used(&result);
+        if let ExecutionResult::Success { logs, .. } = result {
             Ok((logs, gas_used))
         } else {
             Err(CacheError::CallNotSuccessful {
@@ -5759,13 +5762,9 @@ impl EvmCache {
         let synthetic_beneficiary = Self::seed_synthetic_beneficiary(&mut evm);
         let target_checkpoint = evm.journaled_state.checkpoint();
         let result = evm.transact_one(tx).map_err(CacheError::transact)?;
-        let (logs, gas_used, output) = match result {
-            ExecutionResult::Success {
-                logs,
-                gas_used,
-                output,
-                ..
-            } => (logs, gas_used, output.into_data()),
+        let gas_used = crate::execution_gas_used(&result);
+        let (logs, output) = match result {
+            ExecutionResult::Success { logs, output, .. } => (logs, output.into_data()),
             _ => {
                 evm.journaled_state.checkpoint_revert(target_checkpoint);
                 Self::remove_synthetic_beneficiary(&mut evm, synthetic_beneficiary);
@@ -5840,56 +5839,56 @@ impl EvmCache {
             .map_err(|e| SimError::Other(SimHostError::transact(e)));
 
         match result {
-            Ok(ExecutionResult::Success {
-                logs,
-                gas_used,
-                output,
-                ..
-            }) => {
-                // Compute balance deltas from captured transfers
-                let token_deltas = if let Some(token_list) = tokens {
-                    evm.inspector.balance_deltas_for_tokens(owner, token_list)
-                } else {
-                    evm.inspector.balance_deltas(owner)
-                };
+            Ok(res) => {
+                let gas_used = crate::execution_gas_used(&res);
+                match res {
+                    ExecutionResult::Success { logs, output, .. } => {
+                        // Compute balance deltas from captured transfers
+                        let token_deltas = if let Some(token_list) = tokens {
+                            evm.inspector.balance_deltas_for_tokens(owner, token_list)
+                        } else {
+                            evm.inspector.balance_deltas(owner)
+                        };
 
-                // Log shared memory buffer capacity for profiling
-                let memory_capacity = evm.ctx.local.shared_memory_buffer.borrow().capacity();
-                trace!(
-                    memory_capacity_bytes = memory_capacity,
-                    memory_capacity_kb = memory_capacity / 1024,
-                    "EVM shared memory buffer capacity after simulation"
-                );
+                        // Log shared memory buffer capacity for profiling
+                        let memory_capacity = evm.ctx.local.shared_memory_buffer.borrow().capacity();
+                        trace!(
+                            memory_capacity_bytes = memory_capacity,
+                            memory_capacity_kb = memory_capacity / 1024,
+                            "EVM shared memory buffer capacity after simulation"
+                        );
 
-                // Extract EIP-2930 access list from journaled state before commit/revert.
-                // After inspect_one_tx, state contains all touched accounts and storage slots.
-                let access_list = extract_access_list(&evm.journaled_state.state);
+                        // Extract EIP-2930 access list from journaled state before commit/revert.
+                        // After inspect_one_tx, state contains all touched accounts and storage slots.
+                        let access_list = extract_access_list(&evm.journaled_state.state);
 
-                if commit {
-                    evm.commit_inner();
-                } else {
-                    evm.journaled_state.checkpoint_revert(checkpoint);
+                        if commit {
+                            evm.commit_inner();
+                        } else {
+                            evm.journaled_state.checkpoint_revert(checkpoint);
+                        }
+
+                        Ok(CallSimulationResult {
+                            status: SimStatus::Success,
+                            gas_used,
+                            token_deltas,
+                            logs,
+                            access_list,
+                            output: output.into_data(),
+                        })
+                    }
+                    ExecutionResult::Revert { output, .. } => {
+                        evm.journaled_state.checkpoint_revert(checkpoint);
+                        Err(SimulationError::from_revert(gas_used, output).into())
+                    }
+                    ExecutionResult::Halt { reason, .. } => {
+                        evm.journaled_state.checkpoint_revert(checkpoint);
+                        Err(SimError::Halt {
+                            reason: format!("{reason:?}"),
+                            gas_used,
+                        })
+                    }
                 }
-
-                Ok(CallSimulationResult {
-                    status: SimStatus::Success,
-                    gas_used,
-                    token_deltas,
-                    logs,
-                    access_list,
-                    output: output.into_data(),
-                })
-            }
-            Ok(ExecutionResult::Revert { gas_used, output }) => {
-                evm.journaled_state.checkpoint_revert(checkpoint);
-                Err(SimulationError::from_revert(gas_used, output).into())
-            }
-            Ok(ExecutionResult::Halt { reason, gas_used }) => {
-                evm.journaled_state.checkpoint_revert(checkpoint);
-                Err(SimError::Halt {
-                    reason: format!("{reason:?}"),
-                    gas_used,
-                })
             }
             Err(err) => {
                 evm.journaled_state.checkpoint_revert(checkpoint);
@@ -5989,7 +5988,7 @@ impl EvmCache {
                     .accounts
                     .get(&address)
                     .map(|account| account.info.code_hash)
-                    .unwrap_or(revm::primitives::KECCAK_EMPTY);
+                    .unwrap_or(crate::revm::primitives::KECCAK_EMPTY);
                 self.code_seeds
                     .insert(address, CodeSeedState::Etched { code_hash });
                 Ok(address)
@@ -6208,7 +6207,7 @@ impl EvmCache {
             } else if sample.code_hash == B256::ZERO {
                 self.purge_account(address);
                 report.not_deployed.push(address);
-            } else if sample.code_hash == revm::primitives::KECCAK_EMPTY {
+            } else if sample.code_hash == crate::revm::primitives::KECCAK_EMPTY {
                 self.purge_account(address);
                 report.codeless.push(address);
             } else {
@@ -6488,7 +6487,7 @@ impl EvmCache {
         let mut info = self.local_account_info(address).unwrap_or(AccountInfo {
             balance,
             nonce,
-            code_hash: revm::primitives::KECCAK_EMPTY,
+            code_hash: crate::revm::primitives::KECCAK_EMPTY,
             code: None,
             account_id: None,
         });
@@ -6594,7 +6593,7 @@ impl EvmCache {
         match missing_target {
             MissingTargetBehavior::Create => Ok(AccountInfo::default()),
             MissingTargetBehavior::Error => {
-                use revm::database_interface::DatabaseRef;
+                use crate::revm::database_interface::DatabaseRef;
                 self.backend
                     .basic_ref(target)
                     .map_err(|e| CacheError::TargetAccountFetch {
@@ -7109,9 +7108,9 @@ mod core_tests {
 
     #[test]
     fn snapshot_generation_bumps_on_writes_and_repins_not_prefetch() {
-        use alloy_provider::RootProvider;
-        use alloy_rpc_client::RpcClient;
-        use alloy_transport::mock::Asserter;
+        use crate::alloy_provider::RootProvider;
+        use crate::alloy_rpc_client::RpcClient;
+        use crate::alloy_transport::mock::Asserter;
 
         let asserter = Asserter::new();
         let client = RpcClient::mocked(asserter);
@@ -7167,7 +7166,7 @@ mod core_tests {
 
         // advance_block refreshes the env — a spanning snapshot would be
         // inconsistent, so it bumps too.
-        let header = alloy_consensus::Header::default();
+        let header = crate::alloy_consensus::Header::default();
         cache.advance_block(&header).expect("lenient advance");
         assert!(cache.snapshot_generation() > g4);
     }
@@ -7192,9 +7191,9 @@ mod core_tests {
 
     #[test]
     fn new_defaults_to_latest_block_pin() {
-        use alloy_provider::RootProvider;
-        use alloy_rpc_client::RpcClient;
-        use alloy_transport::mock::Asserter;
+        use crate::alloy_provider::RootProvider;
+        use crate::alloy_rpc_client::RpcClient;
+        use crate::alloy_transport::mock::Asserter;
 
         let asserter = Asserter::new();
         let client = RpcClient::mocked(asserter);
@@ -7216,9 +7215,9 @@ mod core_tests {
 
     #[test]
     fn test_set_block_context_stores_values() {
-        use alloy_provider::RootProvider;
-        use alloy_rpc_client::RpcClient;
-        use alloy_transport::mock::Asserter;
+        use crate::alloy_provider::RootProvider;
+        use crate::alloy_rpc_client::RpcClient;
+        use crate::alloy_transport::mock::Asserter;
 
         let asserter = Asserter::new();
         let client = RpcClient::mocked(asserter);
@@ -7248,9 +7247,9 @@ mod core_tests {
 
     #[test]
     fn set_block_latest_clears_stale_block_context() {
-        use alloy_provider::RootProvider;
-        use alloy_rpc_client::RpcClient;
-        use alloy_transport::mock::Asserter;
+        use crate::alloy_provider::RootProvider;
+        use crate::alloy_rpc_client::RpcClient;
+        use crate::alloy_transport::mock::Asserter;
 
         let asserter = Asserter::new();
         let client = RpcClient::mocked(asserter);
@@ -7280,9 +7279,9 @@ mod core_tests {
 
     #[test]
     fn set_block_latest_clears_stale_context_even_when_pin_unchanged() {
-        use alloy_provider::RootProvider;
-        use alloy_rpc_client::RpcClient;
-        use alloy_transport::mock::Asserter;
+        use crate::alloy_provider::RootProvider;
+        use crate::alloy_rpc_client::RpcClient;
+        use crate::alloy_transport::mock::Asserter;
 
         let asserter = Asserter::new();
         let client = RpcClient::mocked(asserter);
@@ -7312,9 +7311,9 @@ mod core_tests {
 
     #[test]
     fn set_block_number_sets_number_and_clears_stale_basefee() {
-        use alloy_provider::RootProvider;
-        use alloy_rpc_client::RpcClient;
-        use alloy_transport::mock::Asserter;
+        use crate::alloy_provider::RootProvider;
+        use crate::alloy_rpc_client::RpcClient;
+        use crate::alloy_transport::mock::Asserter;
 
         let asserter = Asserter::new();
         let client = RpcClient::mocked(asserter);
@@ -7340,9 +7339,9 @@ mod core_tests {
 
     #[test]
     fn repin_to_block_clears_stale_basefee() {
-        use alloy_provider::RootProvider;
-        use alloy_rpc_client::RpcClient;
-        use alloy_transport::mock::Asserter;
+        use crate::alloy_provider::RootProvider;
+        use crate::alloy_rpc_client::RpcClient;
+        use crate::alloy_transport::mock::Asserter;
 
         let asserter = Asserter::new();
         let client = RpcClient::mocked(asserter);
@@ -7368,9 +7367,9 @@ mod core_tests {
 
     #[test]
     fn test_build_evm_applies_block_context() {
-        use alloy_provider::RootProvider;
-        use alloy_rpc_client::RpcClient;
-        use alloy_transport::mock::Asserter;
+        use crate::alloy_provider::RootProvider;
+        use crate::alloy_rpc_client::RpcClient;
+        use crate::alloy_transport::mock::Asserter;
 
         let asserter = Asserter::new();
         let client = RpcClient::mocked(asserter);
@@ -7403,9 +7402,9 @@ mod core_tests {
 
     #[test]
     fn test_from_backend_propagates_block_context() {
-        use alloy_provider::RootProvider;
-        use alloy_rpc_client::RpcClient;
-        use alloy_transport::mock::Asserter;
+        use crate::alloy_provider::RootProvider;
+        use crate::alloy_rpc_client::RpcClient;
+        use crate::alloy_transport::mock::Asserter;
 
         let asserter = Asserter::new();
         let client = RpcClient::mocked(asserter);

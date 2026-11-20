@@ -33,15 +33,15 @@ use std::sync::Arc;
 use std::thread;
 
 use alloy_primitives::{Address, Bytes, U256, hex};
-use alloy_provider::RootProvider;
-use alloy_provider::network::AnyNetwork;
-use alloy_rpc_client::RpcClient;
+use evm_fork_cache::alloy_provider::RootProvider;
+use evm_fork_cache::alloy_provider::network::AnyNetwork;
+use evm_fork_cache::alloy_rpc_client::RpcClient;
 use alloy_sol_types::{SolCall, sol};
-use alloy_transport::mock::Asserter;
+use evm_fork_cache::alloy_provider::mock::Asserter;
 use criterion::{BenchmarkId, Criterion, Throughput, criterion_group, criterion_main};
 use evm_fork_cache::cache::{EvmCache, EvmOverlay};
-use revm::context::result::ExecutionResult;
-use revm::state::{AccountInfo, Bytecode};
+use evm_fork_cache::revm::context::result::ExecutionResult;
+use evm_fork_cache::revm::state::{AccountInfo, Bytecode};
 use tokio::runtime::Runtime;
 
 const MOCK_ERC20_RUNTIME_HEX: &str = include_str!("../fixtures/mock_erc20_runtime.hex");

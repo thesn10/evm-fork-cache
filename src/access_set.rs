@@ -7,7 +7,7 @@
 
 use std::collections::HashSet;
 
-use alloy_eips::eip2930::{AccessList, AccessListItem};
+use crate::alloy_eips::eip2930::{AccessList, AccessListItem};
 use alloy_primitives::{Address, B256, U256};
 use serde::{Deserialize, Serialize};
 

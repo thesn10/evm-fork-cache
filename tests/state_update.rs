@@ -25,7 +25,7 @@ use evm_fork_cache::{
     AccountPatch, PurgeScope, SkippedAccountPatch, SkippedBalanceDelta, SkippedDelta, SkippedMask,
     SlotChange, SlotDelta, StateDiff, StateUpdate,
 };
-use revm::state::{AccountInfo, Bytecode};
+use evm_fork_cache::revm::state::{AccountInfo, Bytecode};
 
 // ---------------------------------------------------------------------------
 // Layer-inspection helpers (read each cache layer independently).
@@ -1493,7 +1493,7 @@ async fn balance_delta_on_notexisting_overlay_account_is_skipped() -> Result<()>
     // A NotExisting overlay account is absent to the EVM (revm DbAccount::info()
     // returns None), even if it carries a stale info.balance. loaded_account_info
     // must treat it as cold so a BalanceDelta skips rather than applying to 1000.
-    use revm::database::AccountState;
+    use evm_fork_cache::revm::database::AccountState;
     let acct = Address::repeat_byte(0x7e);
     let mut cache = setup_cache().await?;
     cache.db_mut().insert_account_info(
@@ -1536,7 +1536,7 @@ async fn account_patch_normalizes_zero_code_hash_across_layers() -> Result<()> {
     // layers agree (the overlay write does this via insert_contract; the backend
     // write must too). Seed the backend (unnormalized) with a ZERO hash, then patch.
     use alloy_primitives::B256;
-    use revm::primitives::KECCAK_EMPTY;
+    use evm_fork_cache::revm::primitives::KECCAK_EMPTY;
     let acct = Address::repeat_byte(0x7f);
     let mut cache = setup_cache().await?;
     cache.unchecked_blockchain_db().accounts().write().insert(

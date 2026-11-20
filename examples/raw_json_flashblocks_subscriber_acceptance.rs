@@ -13,11 +13,11 @@ use std::{
     time::Duration,
 };
 
-use alloy_consensus::BlockHeader as _;
-use alloy_network::Ethereum;
+use evm_fork_cache::alloy_consensus::BlockHeader as _;
+use evm_fork_cache::alloy_network::Ethereum;
 use alloy_primitives::{B256, keccak256};
-use alloy_provider::{ProviderBuilder, WsConnect};
-use alloy_rpc_types_eth::{Filter, Log};
+use evm_fork_cache::alloy_provider::{ProviderBuilder, WsConnect};
+use evm_fork_cache::alloy_rpc_types_eth::{Filter, Log};
 use anyhow::{Context as _, Result, bail, ensure};
 use evm_fork_cache::reactive::{
     AlloySubscriber, BlockInterest, ChainStatus, EventSubscriber, FlashblockUpdateSender,

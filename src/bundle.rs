@@ -30,7 +30,7 @@
 //! [`EvmOverlay::simulate_bundle`]: crate::cache::EvmOverlay::simulate_bundle
 
 use alloy_primitives::{Address, Bytes, Log, U256};
-use revm::context::result::ExecutionResult;
+use crate::revm::context::result::ExecutionResult;
 
 use crate::cache::TxConfig;
 

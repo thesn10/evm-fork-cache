@@ -26,19 +26,19 @@ use std::hint::black_box;
 use std::sync::Arc;
 use std::time::Duration;
 
-use alloy_eips::BlockId;
+use evm_fork_cache::alloy_eips::BlockId;
 use alloy_primitives::{Address, Bytes, U256, hex, keccak256};
-use alloy_provider::RootProvider;
-use alloy_provider::network::AnyNetwork;
-use alloy_rpc_client::RpcClient;
+use evm_fork_cache::alloy_provider::RootProvider;
+use evm_fork_cache::alloy_provider::network::AnyNetwork;
+use evm_fork_cache::alloy_rpc_client::RpcClient;
 use alloy_sol_types::{SolCall, SolValue, sol};
-use alloy_transport::mock::Asserter;
+use evm_fork_cache::alloy_provider::mock::Asserter;
 use criterion::{BatchSize, Criterion, criterion_group, criterion_main};
 use evm_fork_cache::cache::{EvmCache, EvmOverlay, StorageBatchFetchFn};
 use evm_fork_cache::freshness::{
     AlwaysVerify, FreshnessController, FreshnessRegistry, SimRequest, Validation,
 };
-use revm::state::{AccountInfo, Bytecode};
+use evm_fork_cache::revm::state::{AccountInfo, Bytecode};
 use tokio::runtime::{Builder, Runtime};
 
 const MOCK_ERC20_RUNTIME_HEX: &str = include_str!("../fixtures/mock_erc20_runtime.hex");

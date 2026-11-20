@@ -235,7 +235,7 @@ async fn probe_roots_without_account_proof_fetcher_errors() -> Result<()> {
         base.chain_id(),
         None,
         None,
-        revm::primitives::hardfork::SpecId::CANCUN,
+        evm_fork_cache::revm::primitives::hardfork::SpecId::CANCUN,
     );
     assert!(
         cache.account_proof_fetcher().is_none(),

@@ -25,7 +25,7 @@ use alloy_primitives::{Address, Bytes, U256};
 use alloy_sol_types::SolCall;
 use anyhow::{Result, anyhow};
 use evm_fork_cache::cache::{EvmOverlay, EvmSnapshot};
-use revm::context::result::ExecutionResult;
+use evm_fork_cache::revm::context::result::ExecutionResult;
 
 #[path = "support/mock.rs"]
 mod mock;

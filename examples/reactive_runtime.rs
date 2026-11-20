@@ -32,10 +32,10 @@ mod mock;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 
-use alloy_eips::BlockId;
-use alloy_network::Ethereum;
+use evm_fork_cache::alloy_eips::BlockId;
+use evm_fork_cache::alloy_network::Ethereum;
 use alloy_primitives::{Address, B256, Bytes, Log as PrimitiveLog, U256, keccak256};
-use alloy_rpc_types_eth::{Filter, Log};
+use evm_fork_cache::alloy_rpc_types_eth::{Filter, Log};
 use anyhow::Result;
 use evm_fork_cache::StateUpdate;
 use evm_fork_cache::cache::StorageBatchFetchFn;

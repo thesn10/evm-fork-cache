@@ -12,15 +12,15 @@
 #![cfg(feature = "reactive")]
 
 #[cfg(feature = "reactive-polling")]
-use alloy_network::Ethereum;
+use evm_fork_cache::alloy_network::Ethereum;
 #[cfg(feature = "reactive-polling")]
 use alloy_primitives::{Address, B256, Bytes, Log as PrimitiveLog, U256, keccak256};
 #[cfg(feature = "reactive-polling")]
-use alloy_provider::ProviderBuilder;
+use evm_fork_cache::alloy_provider::ProviderBuilder;
 #[cfg(feature = "reactive-polling")]
-use alloy_rpc_types_eth::{Block, Filter, Header, Log};
+use evm_fork_cache::alloy_rpc_types_eth::{Block, Filter, Header, Log};
 #[cfg(feature = "reactive-polling")]
-use alloy_transport::mock::Asserter;
+use evm_fork_cache::alloy_provider::mock::Asserter;
 #[cfg(feature = "reactive-polling")]
 use anyhow::Result;
 
@@ -56,7 +56,7 @@ fn rpc_log(address: Address, topic0: B256, block_number: u64, log_index: u64) ->
 fn rpc_block(point: &BlockRef) -> Block {
     Block::empty(Header {
         hash: point.hash,
-        inner: alloy_consensus::Header {
+        inner: evm_fork_cache::alloy_consensus::Header {
             number: point.number,
             parent_hash: point.parent_hash.unwrap_or_default(),
             timestamp: point.timestamp.unwrap_or_default(),
@@ -70,7 +70,7 @@ fn rpc_block(point: &BlockRef) -> Block {
 #[cfg(feature = "reactive-polling")]
 fn polling_subscriber(
     asserter: Asserter,
-) -> AlloySubscriber<impl alloy_provider::Provider<Ethereum> + Clone, Ethereum> {
+) -> AlloySubscriber<impl evm_fork_cache::alloy_provider::Provider<Ethereum> + Clone, Ethereum> {
     let provider = ProviderBuilder::new().connect_mocked_client(asserter);
     AlloySubscriber::new(
         provider,

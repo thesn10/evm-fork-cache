@@ -14,11 +14,11 @@ use std::{
     time::{Duration, Instant},
 };
 
-use alloy_network::Ethereum;
+use evm_fork_cache::alloy_network::Ethereum;
 use alloy_primitives::{Address, B256, Bytes, Log as PrimitiveLog, U256};
-use alloy_provider::ProviderBuilder;
-use alloy_rpc_types_eth::{Block, Filter, Header, Log};
-use alloy_transport::mock::Asserter;
+use evm_fork_cache::alloy_provider::ProviderBuilder;
+use evm_fork_cache::alloy_rpc_types_eth::{Block, Filter, Header, Log};
+use evm_fork_cache::alloy_provider::mock::Asserter;
 use anyhow::{Result, bail};
 use common::{install_mock_erc20, setup_cache_with_asserter};
 use evm_fork_cache::StateUpdate;
@@ -131,7 +131,7 @@ fn canonical_log(pool: Address, topic: B256, value: U256) -> Log {
 fn canonical_block() -> Block {
     Block::empty(Header {
         hash: B256::repeat_byte(BLOCK_NUMBER as u8),
-        inner: alloy_consensus::Header {
+        inner: evm_fork_cache::alloy_consensus::Header {
             number: BLOCK_NUMBER,
             parent_hash: B256::repeat_byte(BLOCK_NUMBER.saturating_sub(1) as u8),
             timestamp: 1_700_000_000 + BLOCK_NUMBER,

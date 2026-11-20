@@ -10,10 +10,10 @@ mod common;
 
 use std::sync::{Arc, Mutex};
 
-use alloy_eips::BlockId;
-use alloy_network::Ethereum;
+use evm_fork_cache::alloy_eips::BlockId;
+use evm_fork_cache::alloy_network::Ethereum;
 use alloy_primitives::{Address, B256, Bytes, Log as PrimitiveLog, U256, keccak256};
-use alloy_rpc_types_eth::{Filter, Log};
+use evm_fork_cache::alloy_rpc_types_eth::{Filter, Log};
 use anyhow::Result;
 
 use common::setup_cache;
@@ -28,7 +28,7 @@ use evm_fork_cache::reactive::{
     ResyncBlock, ResyncFailureKind, ResyncId, ResyncPriority, ResyncReason, ResyncRequest,
     ResyncTarget, RouteKeySpec, StateEffectQuality,
 };
-use revm::primitives::hardfork::SpecId;
+use evm_fork_cache::revm::primitives::hardfork::SpecId;
 
 /// Recorded `(requests, block)` calls captured by a mock `AccountProofFetchFn`.
 type ProofFetchCalls = Vec<(Vec<(Address, Vec<U256>)>, BlockId)>;

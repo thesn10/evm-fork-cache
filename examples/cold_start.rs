@@ -27,7 +27,7 @@ mod mock;
 
 use std::sync::Arc;
 
-use alloy_eips::BlockId;
+use evm_fork_cache::alloy_eips::BlockId;
 use alloy_primitives::{Address, Bytes, U256, keccak256};
 use alloy_sol_types::{SolCall, SolValue, sol};
 use anyhow::Result;

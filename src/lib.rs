@@ -138,6 +138,114 @@
 //! state over RPC. See the crate README for the full list.
 #![warn(missing_docs)]
 
+#[cfg(all(feature = "alloy1", feature = "alloy2"))]
+compile_error!(
+    "features `alloy1` and `alloy2` are mutually exclusive; use `default-features = false` with `alloy2`"
+);
+
+#[cfg(not(any(feature = "alloy1", feature = "alloy2")))]
+compile_error!("enable either feature `alloy1` or `alloy2`");
+
+/// Re-export of the active `alloy-consensus` crate (`alloy1` or `alloy2`).
+#[cfg(feature = "alloy1")]
+pub use alloy_consensus;
+/// Re-export of the active `alloy-consensus` crate (`alloy1` or `alloy2`).
+#[cfg(feature = "alloy2")]
+pub use alloy2_consensus as alloy_consensus;
+
+/// Re-export of the active `alloy-contract` crate (`alloy1` or `alloy2`).
+#[cfg(feature = "alloy1")]
+pub use alloy_contract;
+/// Re-export of the active `alloy-contract` crate (`alloy1` or `alloy2`).
+#[cfg(feature = "alloy2")]
+pub use alloy2_contract as alloy_contract;
+
+/// Re-export of the active `alloy-eips` crate (`alloy1` or `alloy2`).
+#[cfg(feature = "alloy1")]
+pub use alloy_eips;
+/// Re-export of the active `alloy-eips` crate (`alloy1` or `alloy2`).
+#[cfg(feature = "alloy2")]
+pub use alloy2_eips as alloy_eips;
+
+/// Re-export of the active `alloy-network` crate (`alloy1` or `alloy2`).
+#[cfg(feature = "alloy1")]
+pub use alloy_network;
+/// Re-export of the active `alloy-network` crate (`alloy1` or `alloy2`).
+#[cfg(feature = "alloy2")]
+pub use alloy2_network as alloy_network;
+
+/// Re-export of the active `alloy-provider` crate (`alloy1` or `alloy2`).
+#[cfg(feature = "alloy1")]
+pub use alloy_provider;
+/// Re-export of the active `alloy-provider` crate (`alloy1` or `alloy2`).
+#[cfg(feature = "alloy2")]
+pub use alloy2_provider as alloy_provider;
+
+/// Re-export of the active `alloy-pubsub` crate (`alloy1` or `alloy2`).
+#[cfg(feature = "alloy1")]
+pub use alloy_pubsub;
+/// Re-export of the active `alloy-pubsub` crate (`alloy1` or `alloy2`).
+#[cfg(feature = "alloy2")]
+pub use alloy2_pubsub as alloy_pubsub;
+
+/// Re-export of the active `alloy-rpc-client` crate (`alloy1` or `alloy2`).
+#[cfg(feature = "alloy1")]
+pub use alloy_rpc_client;
+/// Re-export of the active `alloy-rpc-client` crate (`alloy1` or `alloy2`).
+#[cfg(feature = "alloy2")]
+pub use alloy2_rpc_client as alloy_rpc_client;
+
+/// Re-export of the active `alloy-rpc-types-eth` crate (`alloy1` or `alloy2`).
+#[cfg(feature = "alloy1")]
+pub use alloy_rpc_types_eth;
+/// Re-export of the active `alloy-rpc-types-eth` crate (`alloy1` or `alloy2`).
+#[cfg(feature = "alloy2")]
+pub use alloy2_rpc_types_eth as alloy_rpc_types_eth;
+
+/// Re-export of the active `foundry-fork-db` crate matching the selected alloy version.
+#[cfg(feature = "alloy1")]
+pub use foundry_fork_db;
+/// Re-export of the active `foundry-fork-db` crate matching the selected alloy version.
+#[cfg(feature = "alloy2")]
+pub use foundry_fork_db2 as foundry_fork_db;
+
+/// Re-export of the active `revm` crate matching the selected alloy version.
+#[cfg(feature = "alloy1")]
+pub use revm;
+/// Re-export of the active `revm` crate matching the selected alloy version.
+#[cfg(feature = "alloy2")]
+pub use revm2 as revm;
+
+#[cfg(all(test, feature = "alloy1"))]
+pub(crate) use alloy_json_rpc;
+#[cfg(all(test, feature = "alloy2"))]
+pub(crate) use alloy2_json_rpc as alloy_json_rpc;
+
+#[cfg(all(test, feature = "alloy1"))]
+pub(crate) use alloy_transport;
+#[cfg(all(test, feature = "alloy2"))]
+pub(crate) use alloy2_transport as alloy_transport;
+
+#[cfg(feature = "alloy1")]
+pub(crate) fn execution_gas_used<H>(result: &revm::context::result::ExecutionResult<H>) -> u64 {
+    result.gas_used()
+}
+
+#[cfg(feature = "alloy2")]
+pub(crate) fn execution_gas_used<H>(result: &revm::context::result::ExecutionResult<H>) -> u64 {
+    result.tx_gas_used()
+}
+
+#[cfg(feature = "alloy1")]
+pub(crate) fn interpreter_gas_spent(gas: impl std::borrow::Borrow<revm::interpreter::Gas>) -> u64 {
+    gas.borrow().spent()
+}
+
+#[cfg(feature = "alloy2")]
+pub(crate) fn interpreter_gas_spent(gas: impl std::borrow::Borrow<revm::interpreter::Gas>) -> u64 {
+    gas.borrow().total_gas_spent()
+}
+
 pub mod access_list;
 pub mod access_set;
 pub mod bulk_storage;

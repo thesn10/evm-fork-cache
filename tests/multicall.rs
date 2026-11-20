@@ -11,7 +11,7 @@ mod common;
 use alloy_primitives::{Address, Bytes, U256, hex, keccak256};
 use alloy_sol_types::{SolCall, SolValue, sol};
 use anyhow::Result;
-use revm::state::{AccountInfo, Bytecode};
+use evm_fork_cache::revm::state::{AccountInfo, Bytecode};
 
 use common::{MOCK_ERC20_BALANCE_SLOT, install_default_account, install_mock_erc20, setup_cache};
 use evm_fork_cache::cache::EvmCache;

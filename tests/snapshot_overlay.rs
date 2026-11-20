@@ -13,12 +13,12 @@ mod common;
 
 use std::{sync::Arc, time::Duration};
 
-use alloy_eips::BlockId;
+use evm_fork_cache::alloy_eips::BlockId;
 use alloy_primitives::{Address, B256, Bytes, U256, keccak256};
 use alloy_sol_types::{SolCall, SolValue};
 use anyhow::{Result, anyhow};
-use revm::context::result::ExecutionResult;
-use revm::database_interface::Database;
+use evm_fork_cache::revm::context::result::ExecutionResult;
+use evm_fork_cache::revm::database_interface::Database;
 
 use common::{
     MOCK_ERC20_BALANCE_SLOT, MockERC20, install_default_account, install_mock_erc20,
@@ -190,7 +190,7 @@ async fn overlay_reads_reflect_snapshot_state() -> Result<()> {
 /// memory buffer is reclaimed.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn started_evm_execution_is_cooperatively_cancelled() -> Result<()> {
-    use revm::state::{AccountInfo, Bytecode};
+    use evm_fork_cache::revm::state::{AccountInfo, Bytecode};
 
     let mut cache = setup_cache().await?;
     let caller = Address::repeat_byte(0x71);
@@ -555,9 +555,9 @@ async fn snapshot_mirrors_live_read_for_cleared_account() -> Result<()> {
 /// `Some(info)`.
 #[tokio::test]
 async fn snapshot_basic_returns_none_for_notexisting_account() -> Result<()> {
-    use revm::database::AccountState;
-    use revm::database_interface::Database;
-    use revm::state::AccountInfo;
+    use evm_fork_cache::revm::database::AccountState;
+    use evm_fork_cache::revm::database_interface::Database;
+    use evm_fork_cache::revm::state::AccountInfo;
 
     let acct = Address::repeat_byte(0x6e);
     let mut cache = setup_cache().await?;

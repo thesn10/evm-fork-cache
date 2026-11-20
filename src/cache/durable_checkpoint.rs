@@ -20,10 +20,10 @@ use std::{
     },
 };
 
-use alloy_eips::{BlockId, BlockNumberOrTag, RpcBlockHash};
+use crate::alloy_eips::{BlockId, BlockNumberOrTag, RpcBlockHash};
 use alloy_primitives::{Address, B256, U256, keccak256};
-use foundry_fork_db::BlockchainDb;
-use revm::{database::Cache, primitives::hardfork::SpecId, state::AccountInfo};
+use crate::foundry_fork_db::BlockchainDb;
+use crate::revm::{database::Cache, primitives::hardfork::SpecId, state::AccountInfo};
 use serde::{Deserialize, Serialize};
 
 use super::{
@@ -708,7 +708,7 @@ impl DurableCheckpointSnapshot {
         // branch after a shallow reorg. Setting
         // the backend pin directly avoids `set_block` clearing the restored EVM
         // block context and incrementing the restored generation.
-        let block = alloy_eips::BlockId::from((block_hash, Some(true)));
+        let block = crate::alloy_eips::BlockId::from((block_hash, Some(true)));
         cache.block = block;
         let _ = cache.backend.set_pinned_block(block);
 
@@ -870,7 +870,7 @@ mod tests {
         time::{Duration, Instant},
     };
 
-    use foundry_fork_db::{BlockchainDb, cache::BlockchainDbMeta};
+    use crate::foundry_fork_db::{BlockchainDb, cache::BlockchainDbMeta};
 
     use super::capture_backend_maps;
     #[cfg(unix)]

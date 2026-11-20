@@ -19,17 +19,17 @@
 //! On L1 (Ethereum): Access lists always save gas (no L1 data posting overhead),
 //! so use `into_access_list_always()` to skip the profitability check.
 
-use alloy_eips::{
+use crate::alloy_eips::{
     BlockId, BlockNumberOrTag,
     eip2930::{AccessList, AccessListItem},
 };
-use alloy_network::{AnyNetwork, Network};
+use crate::alloy_network::{AnyNetwork, Network};
 use alloy_primitives::{Address, B256, Bytes, U256, address};
-use alloy_provider::Provider;
+use crate::alloy_provider::Provider;
 use alloy_rlp::Encodable;
-use alloy_rpc_types_eth::{TransactionInput, TransactionRequest};
+use crate::alloy_rpc_types_eth::{TransactionInput, TransactionRequest};
 use alloy_sol_types::{SolCall, sol};
-use revm::context::result::ExecutionResult;
+use crate::revm::context::result::ExecutionResult;
 use tracing::{debug, info};
 
 use crate::access_set::StorageAccessList;
@@ -166,6 +166,8 @@ where
 }
 
 sol! {
+    #![sol(alloy_contract = crate::alloy_contract)]
+
     #[sol(rpc)]
     interface ArbGasInfo {
         function getPricesInWei() external view returns (
@@ -629,7 +631,7 @@ fn log_access_list_profitability(
 ///
 /// After filtering, sets the access list on `tx` (skipped if the list is empty).
 pub fn apply_access_list(
-    tx: &mut alloy_rpc_types_eth::TransactionRequest,
+    tx: &mut crate::alloy_rpc_types_eth::TransactionRequest,
     access_list: &mut AccessList,
     sender: Address,
     exclude: &[Address],
@@ -724,10 +726,10 @@ mod tests {
 
     #[tokio::test]
     async fn access_list_profitability_provider_error_returns_err() {
-        use alloy_network::Ethereum;
-        use alloy_provider::RootProvider;
-        use alloy_rpc_client::RpcClient;
-        use alloy_transport::mock::Asserter;
+        use crate::alloy_network::Ethereum;
+        use crate::alloy_provider::RootProvider;
+        use crate::alloy_rpc_client::RpcClient;
+        use crate::alloy_transport::mock::Asserter;
 
         let provider = RootProvider::<Ethereum>::new(RpcClient::mocked(Asserter::new()));
         let access_list = AccessList(vec![AccessListItem {
@@ -746,10 +748,10 @@ mod tests {
 
     #[tokio::test]
     async fn access_list_profitability_empty_list_still_returns_none() {
-        use alloy_network::Ethereum;
-        use alloy_provider::RootProvider;
-        use alloy_rpc_client::RpcClient;
-        use alloy_transport::mock::Asserter;
+        use crate::alloy_network::Ethereum;
+        use crate::alloy_provider::RootProvider;
+        use crate::alloy_rpc_client::RpcClient;
+        use crate::alloy_transport::mock::Asserter;
 
         let provider = RootProvider::<Ethereum>::new(RpcClient::mocked(Asserter::new()));
         let result = access_list_if_profitable(AccessList::default(), &provider)
@@ -760,10 +762,10 @@ mod tests {
 
     #[tokio::test]
     async fn resolve_access_list_l1_returns_non_empty_without_provider_calls() {
-        use alloy_network::Ethereum;
-        use alloy_provider::RootProvider;
-        use alloy_rpc_client::RpcClient;
-        use alloy_transport::mock::Asserter;
+        use crate::alloy_network::Ethereum;
+        use crate::alloy_provider::RootProvider;
+        use crate::alloy_rpc_client::RpcClient;
+        use crate::alloy_transport::mock::Asserter;
 
         let provider = RootProvider::<Ethereum>::new(RpcClient::mocked(Asserter::new()));
         let access_list = AccessList(vec![AccessListItem {
@@ -784,10 +786,10 @@ mod tests {
 
     #[tokio::test]
     async fn resolve_access_list_op_stack_uses_oracle_incremental_fee() {
-        use alloy_network::Ethereum;
-        use alloy_provider::RootProvider;
-        use alloy_rpc_client::RpcClient;
-        use alloy_transport::mock::Asserter;
+        use crate::alloy_network::Ethereum;
+        use crate::alloy_provider::RootProvider;
+        use crate::alloy_rpc_client::RpcClient;
+        use crate::alloy_transport::mock::Asserter;
 
         let asserter = Asserter::new();
         asserter.push_success(&100u128); // eth_gasPrice
@@ -815,10 +817,10 @@ mod tests {
 
     #[tokio::test]
     async fn resolve_access_list_op_stack_unprofitable_returns_none() {
-        use alloy_network::Ethereum;
-        use alloy_provider::RootProvider;
-        use alloy_rpc_client::RpcClient;
-        use alloy_transport::mock::Asserter;
+        use crate::alloy_network::Ethereum;
+        use crate::alloy_provider::RootProvider;
+        use crate::alloy_rpc_client::RpcClient;
+        use crate::alloy_transport::mock::Asserter;
 
         let asserter = Asserter::new();
         asserter.push_success(&100u128); // eth_gasPrice
@@ -846,10 +848,10 @@ mod tests {
 
     #[tokio::test]
     async fn resolve_access_list_op_stack_provider_failure_returns_err() {
-        use alloy_network::Ethereum;
-        use alloy_provider::RootProvider;
-        use alloy_rpc_client::RpcClient;
-        use alloy_transport::mock::Asserter;
+        use crate::alloy_network::Ethereum;
+        use crate::alloy_provider::RootProvider;
+        use crate::alloy_rpc_client::RpcClient;
+        use crate::alloy_transport::mock::Asserter;
 
         let asserter = Asserter::new();
         asserter.push_failure_msg("gas oracle unavailable");

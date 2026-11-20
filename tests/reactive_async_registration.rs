@@ -2,9 +2,9 @@
 
 use std::{collections::HashMap, sync::Arc, time::Duration};
 
-use alloy_network::{Ethereum, Network};
+use evm_fork_cache::alloy_network::{Ethereum, Network};
 use alloy_primitives::Address;
-use alloy_rpc_types_eth::Filter;
+use evm_fork_cache::alloy_rpc_types_eth::Filter;
 use evm_fork_cache::ReactiveEngine;
 use evm_fork_cache::reactive::{
     EventSubscriber, HandlerError, HandlerId, HandlerOutcome, InterestOwnerSubscriber, LogInterest,

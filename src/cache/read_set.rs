@@ -3,9 +3,9 @@
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::sync::Arc;
 
-use alloy_eips::BlockId;
+use crate::alloy_eips::BlockId;
 use alloy_primitives::{Address, U256};
-use alloy_rpc_types_eth::TransactionRequest;
+use crate::alloy_rpc_types_eth::TransactionRequest;
 
 use super::{EvmCache, PrewarmReport};
 use crate::access_set::StorageAccessList;
@@ -445,7 +445,7 @@ impl EvmCache {
             }
             if current.is_none()
                 && proof.code_hash != alloy_primitives::B256::ZERO
-                && proof.code_hash != revm::primitives::KECCAK_EMPTY
+                && proof.code_hash != crate::revm::primitives::KECCAK_EMPTY
             {
                 report
                     .failures

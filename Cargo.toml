@@ -29,7 +29,7 @@ exclude = [
 # is all documented (docs.rs builds with default features otherwise). `--cfg
 # docsrs` is the conventional hook for any feature-gated doc annotations.
 [package.metadata.docs.rs]
-all-features = true
+features = ["alloy1", "reactive", "ingress-timing", "reactive-ws", "reactive-polling", "raw-flashblocks-json"]
 rustdoc-args = ["--cfg", "docsrs"]
 
 # Standalone workspace root: keeps this crate from being absorbed by any
@@ -37,7 +37,33 @@ rustdoc-args = ["--cfg", "docsrs"]
 [workspace]
 
 [features]
-default = ["reactive", "reactive-ws"]
+default = ["alloy1", "reactive", "reactive-ws"]
+alloy1 = [
+    "alloy-transport-balancer/alloy1",
+    "dep:alloy-consensus",
+    "dep:alloy-contract",
+    "dep:alloy-eips",
+    "dep:alloy-network",
+    "dep:alloy-provider",
+    "dep:alloy-pubsub",
+    "dep:alloy-rpc-client",
+    "dep:alloy-rpc-types-eth",
+    "dep:foundry-fork-db",
+    "dep:revm",
+]
+alloy2 = [
+    "alloy-transport-balancer/alloy2",
+    "dep:alloy2-consensus",
+    "dep:alloy2-contract",
+    "dep:alloy2-eips",
+    "dep:alloy2-network",
+    "dep:alloy2-provider",
+    "dep:alloy2-pubsub",
+    "dep:alloy2-rpc-client",
+    "dep:alloy2-rpc-types-eth",
+    "dep:foundry-fork-db2",
+    "dep:revm2",
+]
 reactive = []
 # Optional process-local receipt provenance; no telemetry backend is selected.
 ingress-timing = ["reactive"]
@@ -46,7 +72,7 @@ ingress-timing = ["reactive"]
 # being silently skipped. alloy-pubsub already enables it, but relying on
 # feature unification from a transitive dependency would break a build that
 # resolved it differently.
-reactive-ws = ["reactive", "alloy-provider/ws", "dep:rustls", "rustls/ring", "tokio/sync", "dep:alloy-pubsub"]
+reactive-ws = ["reactive", "alloy-provider?/ws", "alloy2-provider?/ws", "dep:rustls", "rustls/ring", "tokio/sync"]
 reactive-polling = ["reactive"]
 # Receipt-enriched indexed JSON conversion plus a bounded in-process handoff.
 # The application owns the source socket and its complete lifecycle; this
@@ -54,28 +80,39 @@ reactive-polling = ["reactive"]
 raw-flashblocks-json = ["reactive", "tokio/sync"]
 
 [dependencies]
-alloy-consensus = ">=1.1.2, <1.7"
-alloy-contract = ">=1.0.38, <1.7"
-alloy-eips = ">=1.0.38, <1.7"
-alloy-network = ">=1.0.38, <1.7"
-alloy-primitives = { version = ">=1.4, <1.7", features = ["map"] }
+alloy-consensus = { version = ">=1.1.2, <1.7", optional = true }
+alloy-contract = { version = ">=1.0.38, <1.7", optional = true }
+alloy-eips = { version = ">=1.0.38, <1.7", optional = true }
+alloy-network = { version = ">=1.0.38, <1.7", optional = true }
+alloy-primitives = { version = ">=1.4, <2", features = ["map"] }
 # Pulled by `reactive-ws` only. `alloy-provider/ws` already brings this in; it is
 # declared explicitly because the pubsub log and header streams consume
 # `Subscription::into_raw()` directly, so a dropped notification surfaces as a
 # `broadcast::error::RecvError::Lagged` instead of being silently skipped by
 # `Subscription::into_stream()`.
 alloy-pubsub = { version = ">=1.0.38, <1.7", optional = true }
-alloy-provider = ">=1.0.38, <1.7"
+alloy-provider = { version = ">=1.0.38, <1.7", optional = true }
 alloy-rlp = "0.3"
-alloy-rpc-client = ">=1.0.38, <1.7"
-alloy-rpc-types-eth = ">=1.0.38, <1.7"
-alloy-sol-types = ">=1.4, <1.7"
+alloy-rpc-client = { version = ">=1.0.38, <1.7", optional = true }
+alloy-rpc-types-eth = { version = ">=1.0.38, <1.7", optional = true }
+alloy-sol-types = ">=1.4, <2"
 alloy-transport-balancer = { version = "0.3.0", default-features = false }
+
+alloy2-consensus = { package = "alloy-consensus", version = "2", optional = true }
+alloy2-contract = { package = "alloy-contract", version = "2", optional = true }
+alloy2-eips = { package = "alloy-eips", version = "2", optional = true }
+alloy2-network = { package = "alloy-network", version = "2", optional = true }
+alloy2-pubsub = { package = "alloy-pubsub", version = "2", optional = true }
+alloy2-provider = { package = "alloy-provider", version = "2", optional = true }
+alloy2-rpc-client = { package = "alloy-rpc-client", version = "2", optional = true }
+alloy2-rpc-types-eth = { package = "alloy-rpc-types-eth", version = "2", optional = true }
 
 futures = "0.3"
 bincode = "1.3"
-foundry-fork-db = "0.22"
-revm = { version = "34.0", features = ["std", "serde", "optional_eip3607", "optional_no_base_fee", "optional_balance_check"] }
+foundry-fork-db = { version = "0.22", optional = true }
+foundry-fork-db2 = { package = "foundry-fork-db", version = "0.26", optional = true }
+revm = { version = "34.0", features = ["std", "serde", "optional_eip3607", "optional_no_base_fee", "optional_balance_check"], optional = true }
+revm2 = { package = "revm", version = "38.0", features = ["std", "serde", "optional_eip3607", "optional_no_base_fee", "optional_balance_check"], optional = true }
 # Pulled by `reactive-ws` only to select rustls' `ring` crypto provider for the
 # alloy WebSocket (wss://) TLS path. If a transitive dep also enabled aws-lc-rs,
 # rustls 0.23 would have no unambiguous process default and a wss:// connection
@@ -96,6 +133,11 @@ alloy-node-bindings = ">=1.1.2, <1.7"
 alloy-rpc-client = { version = ">=1.0.38, <1.7", features = ["reqwest"] }
 alloy-transport = ">=1.0.38, <1.7"
 alloy-transport-http = ">=1.0.38, <1.7"
+alloy2-json-rpc = { package = "alloy-json-rpc", version = "2" }
+alloy2-node-bindings = { package = "alloy-node-bindings", version = "2" }
+alloy2-rpc-client = { package = "alloy-rpc-client", version = "2", features = ["reqwest"] }
+alloy2-transport = { package = "alloy-transport", version = "2" }
+alloy2-transport-http = { package = "alloy-transport-http", version = "2" }
 criterion = "0.5"
 proptest = "1"
 # Gzip-capable HTTP client for the bulk-storage benchmark example: enabling the
@@ -103,6 +145,7 @@ proptest = "1"
 # transparently decompress responses — a large win for multi-hundred-KB
 # `eth_call` payloads (see docs/bulk-storage-extraction.md).
 reqwest = { version = "0.12", default-features = false, features = ["gzip"] }
+reqwest2 = { package = "reqwest", version = "0.13", default-features = false, features = ["gzip"] }
 # `macros` powers `#[tokio::main]`/`#[tokio::test]` in the examples and tests.
 # `time` lets live RPC examples bound their subscription windows.
 tokio = { version = "1.48.0", features = ["macros", "rt-multi-thread", "time"] }

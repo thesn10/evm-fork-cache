@@ -23,7 +23,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use alloy_eips::BlockId;
+use evm_fork_cache::alloy_eips::BlockId;
 use alloy_primitives::{Address, Bytes, Log, U256, keccak256};
 use alloy_sol_types::SolValue;
 use anyhow::Result;

@@ -103,12 +103,12 @@
 use std::collections::HashMap;
 use std::sync::{Arc, OnceLock};
 
-use alloy_eips::BlockId;
+use crate::alloy_eips::BlockId;
 use alloy_primitives::{Address, B256, Bytes, U256, hex};
-use alloy_provider::Provider;
-use alloy_provider::network::AnyNetwork;
-use alloy_rpc_types_eth::TransactionRequest;
-use alloy_rpc_types_eth::state::{AccountOverride, StateOverride};
+use crate::alloy_provider::Provider;
+use crate::alloy_provider::network::AnyNetwork;
+use crate::alloy_rpc_types_eth::TransactionRequest;
+use crate::alloy_rpc_types_eth::state::{AccountOverride, StateOverride};
 use alloy_sol_types::SolCall;
 use futures::stream::{self, StreamExt};
 use tracing::{debug, warn};
@@ -585,7 +585,7 @@ struct CallManyEntry {
 /// errors in the `Ok` payload.
 async fn execute_plans_call_many<P: Provider<AnyNetwork>>(
     provider: &P,
-    number: alloy_eips::BlockNumberOrTag,
+    number: crate::alloy_eips::BlockNumberOrTag,
     plans: &[CallPlan],
     extractor: &Bytes,
 ) -> Result<Vec<(Address, U256, StorageFetchResult<U256>)>, StorageFetchError> {

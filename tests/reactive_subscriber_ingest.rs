@@ -18,11 +18,11 @@ mod common;
 
 use std::sync::Arc;
 
-use alloy_network::Ethereum;
+use evm_fork_cache::alloy_network::Ethereum;
 use alloy_primitives::{Address, B256, Bytes, Log as PrimitiveLog, U256, keccak256};
-use alloy_provider::ProviderBuilder;
-use alloy_rpc_types_eth::{Block, Filter, Header, Log};
-use alloy_transport::mock::Asserter;
+use evm_fork_cache::alloy_provider::ProviderBuilder;
+use evm_fork_cache::alloy_rpc_types_eth::{Block, Filter, Header, Log};
+use evm_fork_cache::alloy_provider::mock::Asserter;
 use anyhow::{Result, bail};
 
 use common::{install_mock_erc20, setup_cache};
@@ -97,7 +97,7 @@ fn swap_log(pool: Address, topic: B256, block_number: u64, value: u64) -> Log {
 fn rpc_block(block_number: u64) -> Block {
     Block::empty(Header {
         hash: B256::repeat_byte(block_number as u8),
-        inner: alloy_consensus::Header {
+        inner: evm_fork_cache::alloy_consensus::Header {
             number: block_number,
             parent_hash: B256::repeat_byte(block_number.saturating_sub(1) as u8),
             timestamp: 1_700_000_000 + block_number,

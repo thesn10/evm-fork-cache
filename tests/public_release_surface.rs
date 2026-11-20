@@ -42,7 +42,7 @@ fn raw_json_flashblocks_remain_explicit_and_transport_free() {
         .expect("feature boundary");
 
     assert!(
-        feature_section.contains("default = [\"reactive\", \"reactive-ws\"]"),
+        feature_section.contains("default = [\"alloy1\", \"reactive\", \"reactive-ws\"]"),
         "the raw adapter must remain excluded from default features"
     );
     assert!(
@@ -283,7 +283,7 @@ fn pre_1_0_api_renames_are_clean_breaks_not_aliases() {
     let cache = read("src/cache/mod.rs");
 
     for required in [
-        "pub fn checkpoint(&self) -> revm::database::Cache",
+        "pub fn checkpoint(&self) -> crate::revm::database::Cache",
         "pub fn snapshot(&mut self) -> Arc<snapshot::EvmSnapshot>",
         "pub struct StorageBatchConfig",
         "impl From<CacheSpeedMode> for StorageBatchConfig",

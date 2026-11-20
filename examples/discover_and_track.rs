@@ -28,14 +28,14 @@ mod mock;
 use std::sync::Arc;
 
 use alloy_primitives::{Address, Bytes, U256, address, keccak256};
-use alloy_provider::ProviderBuilder;
-use alloy_provider::network::AnyNetwork;
+use evm_fork_cache::alloy_provider::ProviderBuilder;
+use evm_fork_cache::alloy_provider::network::AnyNetwork;
 use alloy_sol_types::{SolCall, sol};
 use anyhow::Result;
 use evm_fork_cache::cache::EvmCache;
 use evm_fork_cache::{FreshnessRegistry, SlotLayout, Validity};
-use revm::primitives::hardfork::SpecId;
-use revm::state::{AccountInfo, Bytecode};
+use evm_fork_cache::revm::primitives::hardfork::SpecId;
+use evm_fork_cache::revm::state::{AccountInfo, Bytecode};
 use tokio::runtime::Runtime;
 
 const SOLADY_SEED: u32 = 0x87a2_11a2;

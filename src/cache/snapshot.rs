@@ -41,8 +41,8 @@ use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
 use alloy_primitives::{Address, B256, U256};
-use revm::primitives::hardfork::SpecId;
-use revm::state::{AccountInfo, Bytecode};
+use crate::revm::primitives::hardfork::SpecId;
+use crate::revm::state::{AccountInfo, Bytecode};
 
 use crate::access_set::StorageAccessList;
 

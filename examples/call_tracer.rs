@@ -26,7 +26,7 @@ use evm_fork_cache::cache::EvmCache;
 use evm_fork_cache::inspector::TransferInspector;
 use evm_fork_cache::multicall::{IMulticall3, MULTICALL3_ADDRESS};
 use evm_fork_cache::{CallTrace, CallTracer, EvmOverlay, InspectorStack, TxConfig};
-use revm::state::{AccountInfo, Bytecode};
+use evm_fork_cache::revm::state::{AccountInfo, Bytecode};
 
 const MULTICALL3_RUNTIME_HEX: &str = include_str!("../fixtures/multicall3_runtime.hex");
 

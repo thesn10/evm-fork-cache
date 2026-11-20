@@ -13,10 +13,10 @@ use std::{
     },
 };
 
-use alloy_eips::BlockId;
-use alloy_network::Ethereum;
+use evm_fork_cache::alloy_eips::BlockId;
+use evm_fork_cache::alloy_network::Ethereum;
 use alloy_primitives::{Address, B256, Bytes, Log as PrimitiveLog, U256, keccak256};
-use alloy_rpc_types_eth::{Filter, Header, Log};
+use evm_fork_cache::alloy_rpc_types_eth::{Filter, Header, Log};
 use common::{install_mock_erc20, setup_cache};
 use evm_fork_cache::events::StateView;
 use evm_fork_cache::freshness::FreshnessRegistry;
@@ -949,7 +949,7 @@ fn header_batch(
     };
     let header = Header {
         hash: block.hash,
-        inner: alloy_consensus::Header {
+        inner: evm_fork_cache::alloy_consensus::Header {
             number: block.number,
             parent_hash: block.parent_hash.expect("parent"),
             timestamp: block.timestamp.expect("timestamp"),

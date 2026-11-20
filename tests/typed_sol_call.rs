@@ -6,7 +6,7 @@ use alloy_primitives::{Address, Bytes, U256, hex};
 use alloy_sol_types::sol;
 use anyhow::Result;
 use evm_fork_cache::cache::{EvmCache, TxConfig};
-use revm::state::{AccountInfo, Bytecode};
+use evm_fork_cache::revm::state::{AccountInfo, Bytecode};
 
 use common::{
     MOCK_ERC20_BALANCE_SLOT, MockERC20, balance_of, install_default_account, install_mock_erc20,

@@ -17,13 +17,13 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use alloy_eips::BlockId;
+use evm_fork_cache::alloy_eips::BlockId;
 use alloy_primitives::{Address, Bytes, U256};
-use alloy_provider::RootProvider;
-use alloy_provider::network::AnyNetwork;
-use alloy_rpc_client::RpcClient;
+use evm_fork_cache::alloy_provider::RootProvider;
+use evm_fork_cache::alloy_provider::network::AnyNetwork;
+use evm_fork_cache::alloy_rpc_client::RpcClient;
 use alloy_sol_types::SolCall;
-use alloy_transport::mock::Asserter;
+use evm_fork_cache::alloy_provider::mock::Asserter;
 use anyhow::{Result, anyhow};
 use evm_fork_cache::bulk_storage::{
     ACCOUNT_FIELDS_EXTRACTOR_CODE, BLOCK_CONTEXT_EXTRACTOR_CODE, BulkCallConfig, BulkFetcherStatus,
@@ -34,8 +34,8 @@ use evm_fork_cache::bulk_storage::{
 };
 use evm_fork_cache::cache::{EvmCache, StorageBatchFetchFn};
 use evm_fork_cache::multicall::{IMulticall3, MULTICALL3_ADDRESS};
-use revm::context::result::ExecutionResult;
-use revm::state::{AccountInfo, Bytecode};
+use evm_fork_cache::revm::context::result::ExecutionResult;
+use evm_fork_cache::revm::state::{AccountInfo, Bytecode};
 
 use common::{install_default_account, setup_cache};
 
@@ -607,7 +607,7 @@ async fn cache_default_fetcher_is_bulk_extraction() -> Result<()> {
 /// A non-default bulk config supplied through the builder is applied.
 #[tokio::test(flavor = "multi_thread")]
 async fn builder_bulk_call_config_is_applied() -> Result<()> {
-    use alloy_provider::RootProvider;
+    use evm_fork_cache::alloy_provider::RootProvider;
     let asserter = Asserter::new();
     let client = RpcClient::mocked(asserter.clone());
     let provider = Arc::new(RootProvider::<AnyNetwork>::new(client));
@@ -690,7 +690,7 @@ async fn fetcher_call_many_dispatch_decodes_bundle_response() {
     );
     let results = fetcher(
         vec![(token, U256::from(0u64)), (token, U256::from(1u64))],
-        BlockId::Number(alloy_eips::BlockNumberOrTag::Number(1000)),
+        BlockId::Number(evm_fork_cache::alloy_eips::BlockNumberOrTag::Number(1000)),
     );
     assert_eq!(results.len(), 2);
     assert!(results.iter().all(|(_, _, r)| r.is_ok()));
@@ -716,7 +716,7 @@ async fn fetcher_call_many_failure_redispatches_per_call() {
     );
     let results = fetcher(
         vec![(token, U256::from(0u64)), (token, U256::from(1u64))],
-        BlockId::Number(alloy_eips::BlockNumberOrTag::Number(1000)),
+        BlockId::Number(evm_fork_cache::alloy_eips::BlockNumberOrTag::Number(1000)),
     );
     assert!(
         results.iter().all(|(_, _, r)| r.is_ok()),
@@ -810,7 +810,7 @@ async fn block_context_extractor_returns_env_words() -> Result<()> {
         Bytes::from_static(BLOCK_CONTEXT_EXTRACTOR_CODE),
         &[],
     );
-    cache.set_block(BlockId::Number(alloy_eips::BlockNumberOrTag::Number(42)));
+    cache.set_block(BlockId::Number(evm_fork_cache::alloy_eips::BlockNumberOrTag::Number(42)));
 
     let out = run_call(&mut cache, host, Bytes::new())?;
     assert_eq!(out.len(), 7 * 32);

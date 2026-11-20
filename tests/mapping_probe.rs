@@ -12,8 +12,8 @@ use common::{MockERC20, install_default_account, install_mock_erc20, setup_cache
 use evm_fork_cache::CallTracer;
 use evm_fork_cache::cache::TxConfig;
 use evm_fork_cache::mapping_probe::{SlotLayout, TrackedMapping};
-use revm::context::result::ExecutionResult;
-use revm::state::{AccountInfo, Bytecode};
+use evm_fork_cache::revm::context::result::ExecutionResult;
+use evm_fork_cache::revm::state::{AccountInfo, Bytecode};
 
 const ALICE: Address = address!("00000000000000000000000000000000000000A1");
 const BOB: Address = address!("00000000000000000000000000000000000000B2");

@@ -1,13 +1,13 @@
 #![cfg(feature = "raw-flashblocks-json")]
 
-use alloy_network::Ethereum;
+use evm_fork_cache::alloy_network::Ethereum;
 #[cfg(feature = "reactive-ws")]
 use alloy_primitives::U256;
 use alloy_primitives::{Address, B256};
-use alloy_provider::ProviderBuilder;
+use evm_fork_cache::alloy_provider::ProviderBuilder;
 #[cfg(feature = "reactive-ws")]
-use alloy_rpc_types_eth::Filter;
-use alloy_transport::mock::Asserter;
+use evm_fork_cache::alloy_rpc_types_eth::Filter;
+use evm_fork_cache::alloy_provider::mock::Asserter;
 use evm_fork_cache::reactive::{
     AlloySubscriber, BufferedRawJsonFlashblocksAdapter, FlashblockInvalidationReason,
     FlashblockUpdate, FlashblockUpdateChannelError, PreconfirmationMode, ProviderRef,

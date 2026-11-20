@@ -6,7 +6,7 @@
 
 use std::time::Duration;
 
-use alloy_network::Ethereum;
+use evm_fork_cache::alloy_network::Ethereum;
 #[cfg(any(feature = "reactive-polling", feature = "reactive-ws"))]
 use alloy_primitives::B256;
 use alloy_primitives::U256;
@@ -14,14 +14,14 @@ use alloy_primitives::U256;
 use alloy_primitives::{Address, keccak256};
 #[cfg(feature = "reactive-polling")]
 use alloy_primitives::{Bytes, Log as PrimitiveLog};
-use alloy_provider::ProviderBuilder;
+use evm_fork_cache::alloy_provider::ProviderBuilder;
 #[cfg(any(feature = "reactive-polling", feature = "reactive-ws"))]
-use alloy_rpc_types_eth::Filter;
+use evm_fork_cache::alloy_rpc_types_eth::Filter;
 #[cfg(feature = "reactive-polling")]
-use alloy_rpc_types_eth::Log;
+use evm_fork_cache::alloy_rpc_types_eth::Log;
 #[cfg(feature = "reactive-polling")]
-use alloy_rpc_types_eth::{Block, Header};
-use alloy_transport::mock::Asserter;
+use evm_fork_cache::alloy_rpc_types_eth::{Block, Header};
+use evm_fork_cache::alloy_provider::mock::Asserter;
 use anyhow::Result;
 #[cfg(feature = "reactive-polling")]
 use anyhow::bail;
@@ -74,7 +74,7 @@ fn removed_rpc_log(address: Address, topic0: B256, block_number: u64, log_index:
 fn rpc_block(point: &BlockRef) -> Block {
     Block::empty(Header {
         hash: point.hash,
-        inner: alloy_consensus::Header {
+        inner: evm_fork_cache::alloy_consensus::Header {
             number: point.number,
             parent_hash: point.parent_hash.unwrap_or_default(),
             timestamp: point.timestamp.unwrap_or_default(),
@@ -96,7 +96,7 @@ fn indexed_address(index: u64) -> Address {
 fn polling_subscriber(
     asserter: Asserter,
     max_batch_size: usize,
-) -> AlloySubscriber<impl alloy_provider::Provider<Ethereum> + Clone, Ethereum> {
+) -> AlloySubscriber<impl evm_fork_cache::alloy_provider::Provider<Ethereum> + Clone, Ethereum> {
     let provider = ProviderBuilder::new().connect_mocked_client(asserter);
     AlloySubscriber::new(
         provider,
@@ -1271,7 +1271,7 @@ async fn control_priority_preserves_already_ready_scoped_batch() -> Result<()> {
 
 fn mock_subscriber(
     mode: SubscriberMode,
-) -> AlloySubscriber<impl alloy_provider::Provider<Ethereum>, Ethereum> {
+) -> AlloySubscriber<impl evm_fork_cache::alloy_provider::Provider<Ethereum>, Ethereum> {
     let provider = ProviderBuilder::new().connect_mocked_client(asserter_with_chain_id());
     AlloySubscriber::new(provider, mode, SubscriberConfig::default())
 }

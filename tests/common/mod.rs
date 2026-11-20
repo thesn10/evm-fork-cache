@@ -9,19 +9,19 @@ use std::collections::HashMap;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, Condvar, Mutex};
 
-use alloy_eips::BlockId;
+use evm_fork_cache::alloy_eips::BlockId;
 use alloy_primitives::{Address, B256, Bytes, U256, hex};
-use alloy_provider::RootProvider;
-use alloy_provider::network::AnyNetwork;
-use alloy_rpc_client::RpcClient;
+use evm_fork_cache::alloy_provider::RootProvider;
+use evm_fork_cache::alloy_provider::network::AnyNetwork;
+use evm_fork_cache::alloy_rpc_client::RpcClient;
 use alloy_sol_types::{SolCall, sol};
-use alloy_transport::mock::Asserter;
+use evm_fork_cache::alloy_provider::mock::Asserter;
 use anyhow::{Result, anyhow};
 use evm_fork_cache::bulk_storage::AccountFieldsSample;
 use evm_fork_cache::cache::{AccountFieldsFetchFn, EvmCache, StorageBatchFetchFn};
 use evm_fork_cache::errors::{StorageFetchError, StorageFetchResult};
-use revm::context::result::ExecutionResult;
-use revm::state::{AccountInfo, Bytecode};
+use evm_fork_cache::revm::context::result::ExecutionResult;
+use evm_fork_cache::revm::state::{AccountInfo, Bytecode};
 
 /// Deployed (runtime) bytecode of the test `MockERC20` (balances at slot 3).
 pub const MOCK_ERC20_RUNTIME_HEX: &str = include_str!("../../fixtures/mock_erc20_runtime.hex");

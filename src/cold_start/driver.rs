@@ -6,7 +6,7 @@
 
 use std::collections::{HashMap, HashSet};
 
-use alloy_eips::BlockId;
+use crate::alloy_eips::BlockId;
 use alloy_primitives::{Address, B256};
 
 use crate::cache::{EvmCache, block_in_place_handle};

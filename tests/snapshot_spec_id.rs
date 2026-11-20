@@ -1,9 +1,8 @@
 //! A local projection can preserve actual configured EVM rules without inference.
-use alloy_provider::{RootProvider, network::AnyNetwork};
-use alloy_rpc_client::RpcClient;
-use alloy_transport::mock::Asserter;
+use evm_fork_cache::alloy_provider::{RootProvider, mock::Asserter, network::AnyNetwork};
+use evm_fork_cache::alloy_rpc_client::RpcClient;
 use evm_fork_cache::cache::EvmCacheBuilder;
-use revm::primitives::hardfork::SpecId;
+use evm_fork_cache::revm::primitives::hardfork::SpecId;
 use std::sync::Arc;
 
 #[tokio::test(flavor = "multi_thread")]

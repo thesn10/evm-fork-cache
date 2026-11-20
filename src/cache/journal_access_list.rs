@@ -1,4 +1,4 @@
-use alloy_eips::eip2930::{AccessList, AccessListItem};
+use crate::alloy_eips::eip2930::{AccessList, AccessListItem};
 use alloy_primitives::B256;
 
 /// Extract an EIP-2930 access list from the EVM journaled state.
@@ -6,7 +6,7 @@ use alloy_primitives::B256;
 /// After a transaction executes, `journaled_state.state` contains all accounts
 /// and storage slots that were touched. This converts them into an `AccessList`
 /// suitable for inclusion in a transaction, ensuring all accessed storage is warm.
-pub(super) fn extract_access_list(state: &revm::state::EvmState) -> AccessList {
+pub(super) fn extract_access_list(state: &crate::revm::state::EvmState) -> AccessList {
     let items: Vec<AccessListItem> = state
         .iter()
         .filter(|(_, account)| account.is_touched())

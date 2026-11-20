@@ -32,8 +32,8 @@
 //! calldata it cannot resolve.
 
 use alloy_primitives::{Address, Bytes, Log, U256};
-use revm::Inspector;
-use revm::interpreter::{
+use crate::revm::Inspector;
+use crate::revm::interpreter::{
     CallInput, CallInputs, CallOutcome, CallScheme, CreateInputs, CreateOutcome, CreateScheme,
     Interpreter, InterpreterTypes,
 };
@@ -252,7 +252,7 @@ fn resolve_call_input(input: &CallInput) -> Bytes {
 
 /// Maps a frame's terminal [`InstructionResult`](revm::interpreter::InstructionResult)
 /// to a [`CallStatus`].
-fn status_from_result(result: revm::interpreter::InstructionResult) -> CallStatus {
+fn status_from_result(result: crate::revm::interpreter::InstructionResult) -> CallStatus {
     if result.is_ok() {
         CallStatus::Success
     } else if result.is_revert() {
@@ -280,7 +280,7 @@ where
 
     fn call_end(&mut self, _context: &mut CTX, _inputs: &CallInputs, outcome: &mut CallOutcome) {
         let status = status_from_result(*outcome.instruction_result());
-        let gas_used = outcome.gas().spent();
+        let gas_used = crate::interpreter_gas_spent(outcome.gas());
         let output = outcome.output().clone();
         self.pop_frame(gas_used, output, status, None);
     }
@@ -305,7 +305,7 @@ where
         outcome: &mut CreateOutcome,
     ) {
         let status = status_from_result(*outcome.instruction_result());
-        let gas_used = outcome.gas().spent();
+        let gas_used = crate::interpreter_gas_spent(outcome.gas());
         let output = outcome.output().clone();
         self.pop_frame(gas_used, output, status, outcome.address);
     }
@@ -466,7 +466,7 @@ mod tests {
 
     #[test]
     fn status_mapping_classifies_results() {
-        use revm::interpreter::InstructionResult;
+        use crate::revm::interpreter::InstructionResult;
         assert_eq!(
             status_from_result(InstructionResult::Stop),
             CallStatus::Success

@@ -23,13 +23,13 @@ mod common;
 
 use std::sync::Arc;
 
-use alloy_eips::{BlockId, BlockNumberOrTag};
+use evm_fork_cache::alloy_eips::{BlockId, BlockNumberOrTag};
 use alloy_primitives::{Address, Bytes, U256, keccak256};
 use alloy_sol_types::{SolCall, SolValue};
 use anyhow::{Result, anyhow};
-use revm::database::AccountState;
-use revm::database_interface::Database;
-use revm::state::{AccountInfo, Bytecode};
+use evm_fork_cache::revm::database::AccountState;
+use evm_fork_cache::revm::database_interface::Database;
+use evm_fork_cache::revm::state::{AccountInfo, Bytecode};
 
 use common::{
     MOCK_ERC20_BALANCE_SLOT, MockERC20, install_default_account, install_mock_erc20, setup_cache,
@@ -63,7 +63,7 @@ fn account_eq(a: &Option<AccountInfo>, b: &Option<AccountInfo>) -> bool {
 fn overlay_balance_of(overlay: &mut EvmOverlay, token: Address, owner: Address) -> Result<U256> {
     let call = MockERC20::balanceOfCall { account: owner };
     match overlay.call_raw(owner, token, call.abi_encode().into())? {
-        revm::context::result::ExecutionResult::Success { output, .. } => Ok(
+        evm_fork_cache::revm::context::result::ExecutionResult::Success { output, .. } => Ok(
             MockERC20::balanceOfCall::abi_decode_returns(&output.into_data())?,
         ),
         other => Err(anyhow!("overlay balanceOf failed: {other:?}")),

@@ -4,7 +4,7 @@ use std::{
 };
 
 use alloy_primitives::{Address, B256, Bytes, FixedBytes, Keccak256, Log as PrimitiveLog};
-use alloy_rpc_types_eth::Log;
+use crate::alloy_rpc_types_eth::Log;
 use tokio::sync::{mpsc, oneshot};
 
 use super::{

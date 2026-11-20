@@ -18,8 +18,8 @@ mod common;
 
 use std::sync::{Arc, Mutex};
 
-use alloy_consensus::{BlockHeader as _, Header};
-use alloy_network::{Ethereum, primitives::HeaderResponse as _};
+use evm_fork_cache::alloy_consensus::{BlockHeader as _, Header};
+use evm_fork_cache::alloy_network::{Ethereum, primitives::HeaderResponse as _};
 use alloy_primitives::{Address, B256, U256};
 use anyhow::Result;
 
@@ -49,7 +49,7 @@ fn canonical_header(number: u64) -> Header {
 }
 
 fn header_input(number: u64) -> ReactiveInput<Ethereum> {
-    ReactiveInput::BlockHeader(alloy_rpc_types_eth::Header::new(canonical_header(number)))
+    ReactiveInput::BlockHeader(evm_fork_cache::alloy_rpc_types_eth::Header::new(canonical_header(number)))
 }
 
 fn canonical_context(number: u64) -> ReactiveContext {
@@ -166,7 +166,7 @@ fn install_block_keyed_root_fetcher(
     root_a: B256,
     root_b: B256,
 ) {
-    use alloy_eips::BlockId;
+    use evm_fork_cache::alloy_eips::BlockId;
     cache.set_account_proof_fetcher(Arc::new(
         move |requests: Vec<(Address, Vec<U256>)>, block: BlockId| {
             let probed = match block {
@@ -442,7 +442,7 @@ async fn reorg_discards_orphaned_root_baseline_before_replacement_branch() -> Re
 // ----------------------------------------------------------------------------
 
 use alloy_primitives::{Bytes, Log as PrimitiveLog};
-use alloy_rpc_types_eth::{Filter, Log};
+use evm_fork_cache::alloy_rpc_types_eth::{Filter, Log};
 use evm_fork_cache::StateUpdate;
 use evm_fork_cache::events::StateView;
 use evm_fork_cache::reactive::{
@@ -571,7 +571,7 @@ fn install_block_keyed_balance_fetcher(
     balance_a: U256,
     balance_b: U256,
 ) {
-    use alloy_eips::BlockId;
+    use evm_fork_cache::alloy_eips::BlockId;
     cache.set_account_proof_fetcher(Arc::new(
         move |requests: Vec<(Address, Vec<U256>)>, block: BlockId| {
             let probed = match block {
@@ -716,7 +716,7 @@ async fn root_gate_issues_one_batched_seam_invocation_per_firing() -> Result<()>
     cache.set_account_proof_fetcher({
         let invocations = invocations.clone();
         Arc::new(
-            move |requests: Vec<(Address, Vec<U256>)>, _block: alloy_eips::BlockId| {
+            move |requests: Vec<(Address, Vec<U256>)>, _block: evm_fork_cache::alloy_eips::BlockId| {
                 invocations.lock().unwrap().push(requests.len());
                 requests
                     .into_iter()
@@ -776,18 +776,25 @@ async fn root_gate_issues_one_batched_seam_invocation_per_firing() -> Result<()>
 #[tokio::test(flavor = "multi_thread")]
 #[ignore = "needs E2E_RPC_URL (live provider); latency bound is environment-dependent"]
 async fn default_proof_fetcher_fans_out_concurrently() -> Result<()> {
-    use alloy_rpc_client::RpcClient;
+    #[cfg(feature = "alloy1")]
     use alloy_transport_http::Http;
+    #[cfg(feature = "alloy2")]
+    use alloy2_transport_http::Http;
+    use evm_fork_cache::alloy_rpc_client::RpcClient;
     use evm_fork_cache::cache::EvmCache;
+    #[cfg(feature = "alloy1")]
+    use reqwest as http_client;
+    #[cfg(feature = "alloy2")]
+    use reqwest2 as http_client;
 
     let Ok(rpc_url) = std::env::var("E2E_RPC_URL") else {
         eprintln!("E2E_RPC_URL not set; skipping");
         return Ok(());
     };
-    let client = reqwest::Client::builder().gzip(true).build()?;
+    let client = http_client::Client::builder().gzip(true).build()?;
     let http = Http::with_client(client, rpc_url.parse()?);
-    let provider = Arc::new(alloy_provider::RootProvider::<
-        alloy_provider::network::AnyNetwork,
+    let provider = Arc::new(evm_fork_cache::alloy_provider::RootProvider::<
+        evm_fork_cache::alloy_provider::network::AnyNetwork,
     >::new(RpcClient::new(http, false)));
 
     let cache = EvmCache::builder(provider).build().await;
@@ -835,7 +842,7 @@ async fn root_gate_fires_on_cadence_boundaries_only() -> Result<()> {
         cache.set_account_proof_fetcher({
             let invocations = invocations.clone();
             Arc::new(
-                move |requests: Vec<(Address, Vec<U256>)>, _block: alloy_eips::BlockId| {
+                move |requests: Vec<(Address, Vec<U256>)>, _block: evm_fork_cache::alloy_eips::BlockId| {
                     invocations.lock().unwrap().push(requests.len());
                     requests
                         .into_iter()
@@ -898,9 +905,9 @@ async fn touched_accumulates_across_skipped_blocks_and_drains_per_firing() -> Re
     // Three-phase roots keyed on the probed block: baseline through 10, a
     // first move visible at the block-14 firing, a second at the block-18 one.
     cache.set_account_proof_fetcher(Arc::new(
-        move |requests: Vec<(Address, Vec<U256>)>, block: alloy_eips::BlockId| {
+        move |requests: Vec<(Address, Vec<U256>)>, block: evm_fork_cache::alloy_eips::BlockId| {
             let probed = match block {
-                alloy_eips::BlockId::Number(n) => n.as_number().unwrap_or(u64::MAX),
+                evm_fork_cache::alloy_eips::BlockId::Number(n) => n.as_number().unwrap_or(u64::MAX),
                 _ => u64::MAX,
             };
             let root = if probed <= 10 {

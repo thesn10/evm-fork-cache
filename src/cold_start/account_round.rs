@@ -4,10 +4,10 @@ use std::collections::{HashMap, HashSet};
 use std::fmt;
 use std::sync::Arc;
 
-use alloy_eips::BlockId;
-use alloy_network::AnyNetwork;
+use crate::alloy_eips::BlockId;
+use crate::alloy_network::AnyNetwork;
 use alloy_primitives::{Address, B256, Bytes};
-use alloy_provider::Provider;
+use crate::alloy_provider::Provider;
 
 use crate::cache::{AccountProof, AccountProofFetchFn, account_proof_fetcher};
 use crate::errors::StorageFetchResult;

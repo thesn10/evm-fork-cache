@@ -40,9 +40,9 @@ use std::collections::HashMap;
 use std::fmt;
 
 use alloy_primitives::{Address, B256, U256, keccak256};
-use revm::Inspector;
-use revm::interpreter::interpreter_types::{Jumps, MemoryTr, StackTr};
-use revm::interpreter::{Interpreter, InterpreterTypes};
+use crate::revm::Inspector;
+use crate::revm::interpreter::interpreter_types::{Jumps, MemoryTr, StackTr};
+use crate::revm::interpreter::{Interpreter, InterpreterTypes};
 
 /// `KECCAK256` (a.k.a. `SHA3`) opcode.
 const OP_KECCAK256: u8 = 0x20;

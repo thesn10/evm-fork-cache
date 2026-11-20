@@ -14,10 +14,10 @@
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use alloy_provider::RootProvider;
-use alloy_provider::network::AnyNetwork;
-use alloy_rpc_client::RpcClient;
-use alloy_transport::mock::Asserter;
+use evm_fork_cache::alloy_provider::RootProvider;
+use evm_fork_cache::alloy_provider::network::AnyNetwork;
+use evm_fork_cache::alloy_rpc_client::RpcClient;
+use evm_fork_cache::alloy_provider::mock::Asserter;
 use anyhow::Result;
 use evm_fork_cache::cache::{
     CacheConfig, CacheSpeedMode, EvmCache, EvmCacheBuilder, StorageBatchConfig,

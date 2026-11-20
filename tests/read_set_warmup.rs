@@ -6,18 +6,18 @@ use std::sync::{
 };
 
 use alloy_primitives::{Address, B256, Bytes, U256};
-use alloy_provider::{RootProvider, network::AnyNetwork};
-use alloy_rpc_client::RpcClient;
-use alloy_rpc_types_eth::TransactionRequest;
-use alloy_transport::mock::Asserter;
+use evm_fork_cache::alloy_provider::{RootProvider, network::AnyNetwork};
+use evm_fork_cache::alloy_rpc_client::RpcClient;
+use evm_fork_cache::alloy_rpc_types_eth::TransactionRequest;
+use evm_fork_cache::alloy_provider::mock::Asserter;
 use evm_fork_cache::cache::EvmCache;
 use evm_fork_cache::{
     AccountProof, ReadSetHydrationFailure, ReadSetWarmupBatch, ReadSetWarmupCall,
     ReadSetWarmupConfig, ReadSetWarmupError, ReadSetWarmupStrategy, StorageAccessList,
     StorageFetchError,
 };
-use revm::primitives::hardfork::SpecId;
-use revm::state::{AccountInfo, Bytecode};
+use evm_fork_cache::revm::primitives::hardfork::SpecId;
+use evm_fork_cache::revm::state::{AccountInfo, Bytecode};
 
 async fn cache() -> EvmCache {
     let provider = RootProvider::<AnyNetwork>::new(RpcClient::mocked(Asserter::new()));

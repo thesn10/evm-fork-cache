@@ -25,6 +25,8 @@ pub const MULTICALL3_ADDRESS: Address = address!("cA11bde05977b3631167028862bE2a
 pub const MAX_BATCH_SIZE: usize = 200;
 
 sol! {
+    #![sol(alloy_contract = crate::alloy_contract)]
+
     /// Multicall3 contract interface.
     /// See: https://github.com/mds1/multicall
     #[sol(rpc)]
@@ -155,7 +157,7 @@ impl MulticallBatch {
         )?;
 
         match result {
-            revm::context::result::ExecutionResult::Success { output, .. } => {
+            crate::revm::context::result::ExecutionResult::Success { output, .. } => {
                 let out = output.into_data();
                 let results: Vec<IMulticall3::Result> =
                     IMulticall3::aggregate3Call::abi_decode_returns(&out).map_err(|e| {
@@ -209,7 +211,7 @@ impl MulticallBatch {
         )?;
 
         match result {
-            revm::context::result::ExecutionResult::Success { output, .. } => {
+            crate::revm::context::result::ExecutionResult::Success { output, .. } => {
                 let out = output.into_data();
                 let results: Vec<IMulticall3::Result> =
                     IMulticall3::aggregate3Call::abi_decode_returns(&out).map_err(|e| {

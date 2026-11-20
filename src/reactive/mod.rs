@@ -29,9 +29,9 @@ use std::{
     time::{Duration, Instant},
 };
 
-use alloy_consensus::{BlockHeader as _, Transaction as _};
-use alloy_eips::{BlockId, BlockNumberOrTag};
-use alloy_network::{
+use crate::alloy_consensus::{BlockHeader as _, Transaction as _};
+use crate::alloy_eips::{BlockId, BlockNumberOrTag};
+use crate::alloy_network::{
     Ethereum, Network,
     primitives::{
         BlockResponse as _, HeaderResponse as HeaderResponseTrait,
@@ -39,9 +39,9 @@ use alloy_network::{
     },
 };
 use alloy_primitives::{Address, B256, Bytes, FixedBytes, Keccak256, U256};
-use alloy_provider::{Provider, RootProvider};
-use alloy_rpc_client::BatchRequest;
-use alloy_rpc_types_eth::{Filter, FilterSet, Log};
+use crate::alloy_provider::{Provider, RootProvider};
+use crate::alloy_rpc_client::BatchRequest;
+use crate::alloy_rpc_types_eth::{Filter, FilterSet, Log};
 pub use alloy_transport_balancer::EndpointId;
 use bincode::Options;
 use futures::{StreamExt, stream};
@@ -19606,7 +19606,7 @@ fn gap_observing_stream<
     #[cfg(feature = "ingress-timing")] F: FnMut(T, Option<CanonicalIngressTiming>) -> SubscriberEvent<N> + Send + 'static,
     #[cfg(not(feature = "ingress-timing"))] F: FnMut(T) -> SubscriberEvent<N> + Send + 'static,
 >(
-    subscription: alloy_pubsub::Subscription<T>,
+    subscription: crate::alloy_pubsub::Subscription<T>,
     source: SubscriberStreamSource,
     gap_counters: Arc<SubscriberStreamGapCounters>,
     #[cfg(feature = "ingress-timing")] receipts: Option<TransportReceiptLookup>,
@@ -19619,7 +19619,7 @@ where
     // The decode closure and the receiver both live in the unfold state, so no
     // borrow is held across an await point.
     struct GapState<T, F> {
-        raw: alloy_pubsub::RawSubscription,
+        raw: crate::alloy_pubsub::RawSubscription,
         to_event: F,
         source: SubscriberStreamSource,
         gap_counters: Arc<SubscriberStreamGapCounters>,
@@ -19934,10 +19934,10 @@ fn should_dedupe_record<N: Network>(record: &ReactiveInputRecord<N>) -> bool {
 #[cfg(test)]
 mod subscriber_helper_tests {
     use super::*;
-    use alloy_json_rpc::{RequestPacket, ResponsePacket};
-    use alloy_provider::ProviderBuilder;
-    use alloy_rpc_client::RpcClient;
-    use alloy_transport::{TransportError, TransportFut, mock::Asserter};
+    use crate::alloy_json_rpc::{RequestPacket, ResponsePacket};
+    use crate::alloy_provider::ProviderBuilder;
+    use crate::alloy_rpc_client::RpcClient;
+    use crate::alloy_transport::{TransportError, TransportFut, mock::Asserter};
     use std::task::{Context, Poll};
     use tower::Service;
 
@@ -20074,7 +20074,7 @@ mod subscriber_helper_tests {
         let asserter = Asserter::new();
         asserter.push_success(&100_u64);
         let pending = rpc_block(101, B256::ZERO).with_transactions(
-            alloy_network::primitives::BlockTransactions::Hashes(vec![
+            crate::alloy_network::primitives::BlockTransactions::Hashes(vec![
                 transaction_a,
                 transaction_b,
                 transaction_c,
@@ -21395,7 +21395,7 @@ mod subscriber_helper_tests {
         let asserter = Asserter::new();
         let transaction = B256::repeat_byte(0x42);
         let pending = rpc_block(101, B256::repeat_byte(0xa1)).with_transactions(
-            alloy_network::primitives::BlockTransactions::Hashes(vec![transaction]),
+            crate::alloy_network::primitives::BlockTransactions::Hashes(vec![transaction]),
         );
         let mut log = rpc_log(false);
         log.block_number = Some(101);
@@ -21445,7 +21445,7 @@ mod subscriber_helper_tests {
         let asserter = Asserter::new();
         let transaction = B256::repeat_byte(0x42);
         let pending = rpc_block(101, B256::repeat_byte(0xa1)).with_transactions(
-            alloy_network::primitives::BlockTransactions::Hashes(vec![transaction]),
+            crate::alloy_network::primitives::BlockTransactions::Hashes(vec![transaction]),
         );
         let mut log = rpc_log(false);
         log.block_number = Some(101);
@@ -21496,7 +21496,7 @@ mod subscriber_helper_tests {
         let transaction_a = B256::repeat_byte(0x41);
         let transaction_b = B256::repeat_byte(0x42);
         let pending = rpc_block(101, B256::repeat_byte(0xa1)).with_transactions(
-            alloy_network::primitives::BlockTransactions::Hashes(vec![
+            crate::alloy_network::primitives::BlockTransactions::Hashes(vec![
                 transaction_a,
                 transaction_b,
             ]),
@@ -21562,7 +21562,7 @@ mod subscriber_helper_tests {
         let transaction_a = B256::repeat_byte(0x41);
         let transaction_b = B256::repeat_byte(0x42);
         let pending = rpc_block(101, B256::repeat_byte(0xa1)).with_transactions(
-            alloy_network::primitives::BlockTransactions::Hashes(vec![
+            crate::alloy_network::primitives::BlockTransactions::Hashes(vec![
                 transaction_a,
                 transaction_b,
             ]),
@@ -21628,7 +21628,7 @@ mod subscriber_helper_tests {
         let transaction_a = B256::repeat_byte(0x41);
         let transaction_b = B256::repeat_byte(0x42);
         let pending = rpc_block(101, B256::repeat_byte(0xa1)).with_transactions(
-            alloy_network::primitives::BlockTransactions::Hashes(vec![
+            crate::alloy_network::primitives::BlockTransactions::Hashes(vec![
                 transaction_a,
                 transaction_b,
             ]),
@@ -21702,7 +21702,7 @@ mod subscriber_helper_tests {
         let sampled_transaction = B256::repeat_byte(0x41);
         let advanced_transaction = B256::repeat_byte(0x42);
         let pending = rpc_block(101, B256::repeat_byte(0xa1)).with_transactions(
-            alloy_network::primitives::BlockTransactions::Hashes(vec![sampled_transaction]),
+            crate::alloy_network::primitives::BlockTransactions::Hashes(vec![sampled_transaction]),
         );
         let mut log = rpc_log(false);
         log.block_number = Some(101);
@@ -21748,13 +21748,13 @@ mod subscriber_helper_tests {
         let transaction_a = B256::repeat_byte(0x41);
         let transaction_b = B256::repeat_byte(0x42);
         let first = rpc_block(101, B256::repeat_byte(0xa1)).with_transactions(
-            alloy_network::primitives::BlockTransactions::Hashes(vec![
+            crate::alloy_network::primitives::BlockTransactions::Hashes(vec![
                 transaction_a,
                 transaction_b,
             ]),
         );
         let regressive = rpc_block(101, B256::repeat_byte(0xa2)).with_transactions(
-            alloy_network::primitives::BlockTransactions::Hashes(vec![transaction_a]),
+            crate::alloy_network::primitives::BlockTransactions::Hashes(vec![transaction_a]),
         );
         queue_op_pending(&asserter, first);
         asserter.push_success(&Vec::<Log>::new());
@@ -21854,7 +21854,7 @@ mod subscriber_helper_tests {
         let asserter = Asserter::new();
         let transaction = B256::repeat_byte(0x42);
         let pending = rpc_block(101, B256::ZERO).with_transactions(
-            alloy_network::primitives::BlockTransactions::Hashes(vec![transaction]),
+            crate::alloy_network::primitives::BlockTransactions::Hashes(vec![transaction]),
         );
         queue_op_pending(&asserter, pending);
         asserter.push_success(&Vec::<Log>::new());
@@ -21891,10 +21891,10 @@ mod subscriber_helper_tests {
         let transaction_a = B256::repeat_byte(0x41);
         let transaction_b = B256::repeat_byte(0x42);
         let first = rpc_block(101, B256::repeat_byte(0xa1)).with_transactions(
-            alloy_network::primitives::BlockTransactions::Hashes(vec![transaction_a]),
+            crate::alloy_network::primitives::BlockTransactions::Hashes(vec![transaction_a]),
         );
         let second = rpc_block(101, B256::repeat_byte(0xa2)).with_transactions(
-            alloy_network::primitives::BlockTransactions::Hashes(vec![
+            crate::alloy_network::primitives::BlockTransactions::Hashes(vec![
                 transaction_a,
                 transaction_b,
             ]),
@@ -22185,19 +22185,21 @@ mod subscriber_helper_tests {
         }
     }
 
-    fn rpc_transaction(chain_id: Option<u64>) -> alloy_rpc_types_eth::Transaction {
-        use alloy_consensus::SignableTransaction as _;
+    fn rpc_transaction(chain_id: Option<u64>) -> crate::alloy_rpc_types_eth::Transaction {
+        use crate::alloy_consensus::SignableTransaction as _;
 
-        let envelope: alloy_consensus::TxEnvelope = alloy_consensus::TxLegacy {
+        let envelope: crate::alloy_consensus::TxEnvelope = crate::alloy_consensus::TxLegacy {
             chain_id,
             ..Default::default()
         }
         .into_signed(alloy_primitives::Signature::test_signature())
         .into();
-        alloy_rpc_types_eth::Transaction {
-            inner: alloy_consensus::transaction::Recovered::new_unchecked(envelope, Address::ZERO),
+        crate::alloy_rpc_types_eth::Transaction {
+            inner: crate::alloy_consensus::transaction::Recovered::new_unchecked(envelope, Address::ZERO),
             block_hash: None,
             block_number: None,
+            #[cfg(feature = "alloy2")]
+            block_timestamp: None,
             transaction_index: None,
             effective_gas_price: None,
         }
@@ -22221,10 +22223,10 @@ mod subscriber_helper_tests {
         }
     }
 
-    fn rpc_block(number: u64, hash: B256) -> alloy_rpc_types_eth::Block {
-        alloy_rpc_types_eth::Block::empty(alloy_rpc_types_eth::Header {
+    fn rpc_block(number: u64, hash: B256) -> crate::alloy_rpc_types_eth::Block {
+        crate::alloy_rpc_types_eth::Block::empty(crate::alloy_rpc_types_eth::Header {
             hash,
-            inner: alloy_consensus::Header {
+            inner: crate::alloy_consensus::Header {
                 number,
                 parent_hash: B256::repeat_byte(number.saturating_sub(1) as u8),
                 timestamp: 1_700_000_000 + number,
@@ -22235,7 +22237,7 @@ mod subscriber_helper_tests {
         })
     }
 
-    fn queue_op_pending(asserter: &Asserter, pending: alloy_rpc_types_eth::Block) {
+    fn queue_op_pending(asserter: &Asserter, pending: crate::alloy_rpc_types_eth::Block) {
         let parent = rpc_block(
             pending.header().number().saturating_sub(1),
             pending.header().parent_hash(),
@@ -22389,7 +22391,7 @@ mod subscriber_helper_tests {
 
     #[test]
     fn full_block_bodies_are_never_suppressed_from_header_hash_alone() {
-        use alloy_rpc_types_eth::{Block, Header};
+        use crate::alloy_rpc_types_eth::{Block, Header};
 
         let block_ref = BlockRef {
             number: 7,
@@ -22399,7 +22401,7 @@ mod subscriber_helper_tests {
         };
         let block = Block::empty(Header {
             hash: block_ref.hash,
-            inner: alloy_consensus::Header {
+            inner: crate::alloy_consensus::Header {
                 number: block_ref.number,
                 parent_hash: block_ref.parent_hash.expect("parent"),
                 timestamp: block_ref.timestamp.expect("timestamp"),
@@ -22472,9 +22474,9 @@ mod subscriber_helper_tests {
             parent_hash: Some(B256::repeat_byte(0x77)),
             timestamp: Some(1_700_000_008),
         };
-        let header = alloy_rpc_types_eth::Header {
+        let header = crate::alloy_rpc_types_eth::Header {
             hash: block_ref.hash,
-            inner: alloy_consensus::Header {
+            inner: crate::alloy_consensus::Header {
                 number: block_ref.number,
                 parent_hash: block_ref.parent_hash.expect("parent"),
                 timestamp: block_ref.timestamp.expect("timestamp"),
@@ -22495,11 +22497,11 @@ mod subscriber_helper_tests {
             log_index: None,
         };
         for transaction in [
-            alloy_rpc_types_eth::Transaction {
+            crate::alloy_rpc_types_eth::Transaction {
                 block_hash: Some(B256::repeat_byte(0xff)),
                 ..rpc_transaction(Some(1))
             },
-            alloy_rpc_types_eth::Transaction {
+            crate::alloy_rpc_types_eth::Transaction {
                 block_hash: Some(block_ref.hash),
                 block_number: Some(block_ref.number),
                 transaction_index: Some(1),
@@ -22507,9 +22509,9 @@ mod subscriber_helper_tests {
             },
             rpc_transaction(Some(2)),
         ] {
-            let block = alloy_rpc_types_eth::Block::new(
+            let block = crate::alloy_rpc_types_eth::Block::new(
                 header.clone(),
-                alloy_network::primitives::BlockTransactions::Full(vec![transaction]),
+                crate::alloy_network::primitives::BlockTransactions::Full(vec![transaction]),
             );
             assert!(matches!(
                 ReactiveInputRecord::<Ethereum>::new(
@@ -22741,7 +22743,7 @@ mod subscriber_helper_tests {
     #[tokio::test(flavor = "multi_thread")]
     #[cfg(feature = "reactive-polling")]
     async fn reconcile_capacity_failure_does_not_publish_progress_or_partial_history() {
-        use alloy_rpc_types_eth::{Block, Header};
+        use crate::alloy_rpc_types_eth::{Block, Header};
 
         let asserter = Asserter::new();
         let baseline = BlockRef {
@@ -22759,7 +22761,7 @@ mod subscriber_helper_tests {
         let rpc_block = || -> Block {
             Block::empty(Header {
                 hash: through.hash,
-                inner: alloy_consensus::Header {
+                inner: crate::alloy_consensus::Header {
                     number: through.number,
                     parent_hash: through.parent_hash.expect("parent"),
                     timestamp: through.timestamp.expect("timestamp"),
@@ -23368,7 +23370,7 @@ mod subscriber_helper_tests {
     #[tokio::test(flavor = "multi_thread")]
     #[cfg(all(feature = "reactive-polling", feature = "reactive-ws"))]
     async fn successful_owner_reconcile_seeds_its_live_filter_reconnect_anchor() {
-        use alloy_rpc_types_eth::{Block, Header};
+        use crate::alloy_rpc_types_eth::{Block, Header};
 
         let asserter = Asserter::new();
         let baseline = BlockRef {
@@ -23386,7 +23388,7 @@ mod subscriber_helper_tests {
         let rpc_block = || -> Block {
             Block::empty(Header {
                 hash: through.hash,
-                inner: alloy_consensus::Header {
+                inner: crate::alloy_consensus::Header {
                     number: through.number,
                     parent_hash: through.parent_hash.unwrap(),
                     timestamp: through.timestamp.unwrap(),
@@ -25625,18 +25627,18 @@ pub enum SubscriberError {
 #[cfg(test)]
 mod canonical_head_rpc_stats_tests {
     use super::*;
-    use alloy_provider::ProviderBuilder;
-    use alloy_rpc_types_eth::{Block, Header as RpcHeader};
-    use alloy_transport::mock::Asserter;
+    use crate::alloy_provider::ProviderBuilder;
+    use crate::alloy_rpc_types_eth::{Block, Header as RpcHeader};
+    use crate::alloy_transport::mock::Asserter;
 
     fn sealed_head() -> Block {
         Block::empty(RpcHeader {
             hash: B256::repeat_byte(0x65),
-            inner: alloy_consensus::Header {
+            inner: crate::alloy_consensus::Header {
                 number: 101,
                 parent_hash: B256::repeat_byte(0x64),
                 timestamp: 1_700_000_101,
-                ..alloy_consensus::Header::default()
+                ..crate::alloy_consensus::Header::default()
             },
             total_difficulty: None,
             size: None,
@@ -25710,8 +25712,8 @@ mod canonical_head_rpc_stats_tests {
 mod stream_gap_tests {
     mod fail_closed;
     use super::*;
-    use alloy_provider::ProviderBuilder;
-    use alloy_transport::mock::Asserter;
+    use crate::alloy_provider::ProviderBuilder;
+    use crate::alloy_transport::mock::Asserter;
     use serde_json::value::RawValue;
 
     fn raw_json(value: &serde_json::Value) -> Box<RawValue> {
@@ -25745,10 +25747,10 @@ mod stream_gap_tests {
         capacity: usize,
     ) -> (
         tokio::sync::broadcast::Sender<Box<RawValue>>,
-        alloy_pubsub::Subscription<Log>,
+        crate::alloy_pubsub::Subscription<Log>,
     ) {
         let (tx, rx) = tokio::sync::broadcast::channel(capacity);
-        let raw = alloy_pubsub::RawSubscription {
+        let raw = crate::alloy_pubsub::RawSubscription {
             rx,
             local_id: B256::repeat_byte(0x5b),
         };
@@ -25756,7 +25758,7 @@ mod stream_gap_tests {
     }
 
     fn gap_stream(
-        subscription: alloy_pubsub::Subscription<Log>,
+        subscription: crate::alloy_pubsub::Subscription<Log>,
         source: SubscriberStreamSource,
         counters: Arc<SubscriberStreamGapCounters>,
     ) -> BoxStream<'static, SubscriberEvent<Ethereum>> {
@@ -25922,7 +25924,7 @@ mod stream_gap_tests {
 
     fn mocked_subscriber(
         asserter: Asserter,
-    ) -> AlloySubscriber<impl alloy_provider::Provider<Ethereum> + Clone, Ethereum> {
+    ) -> AlloySubscriber<impl crate::alloy_provider::Provider<Ethereum> + Clone, Ethereum> {
         let provider = ProviderBuilder::new().connect_mocked_client(asserter);
         AlloySubscriber::new(
             provider,
@@ -26084,18 +26086,18 @@ mod stream_gap_tests {
 #[cfg(all(test, feature = "reactive-ws"))]
 mod log_coverage_attestation_tests {
     use super::*;
-    use alloy_provider::ProviderBuilder;
-    use alloy_rpc_types_eth::Header as RpcHeader;
-    use alloy_transport::mock::Asserter;
+    use crate::alloy_provider::ProviderBuilder;
+    use crate::alloy_rpc_types_eth::Header as RpcHeader;
+    use crate::alloy_transport::mock::Asserter;
 
     fn header_record(number: u64) -> ReactiveInputRecord<Ethereum> {
         block_header_input_record::<Ethereum>(RpcHeader {
             hash: B256::repeat_byte(number as u8),
-            inner: alloy_consensus::Header {
+            inner: crate::alloy_consensus::Header {
                 number,
                 parent_hash: B256::repeat_byte((number - 1) as u8),
                 timestamp: 1_700_000_000 + number,
-                ..alloy_consensus::Header::default()
+                ..crate::alloy_consensus::Header::default()
             },
             total_difficulty: None,
             size: None,
@@ -26105,7 +26107,7 @@ mod log_coverage_attestation_tests {
     fn subscriber(
         mode: SubscriberMode,
         with_log_interest: bool,
-    ) -> AlloySubscriber<impl alloy_provider::Provider<Ethereum> + Clone, Ethereum> {
+    ) -> AlloySubscriber<impl crate::alloy_provider::Provider<Ethereum> + Clone, Ethereum> {
         let provider = ProviderBuilder::new().connect_mocked_client(Asserter::new());
         let mut subscriber = AlloySubscriber::new(provider, mode, SubscriberConfig::default());
         if with_log_interest {
@@ -26119,7 +26121,7 @@ mod log_coverage_attestation_tests {
     }
 
     fn queued_coverage(
-        subscriber: &mut AlloySubscriber<impl alloy_provider::Provider<Ethereum> + Clone, Ethereum>,
+        subscriber: &mut AlloySubscriber<impl crate::alloy_provider::Provider<Ethereum> + Clone, Ethereum>,
     ) -> Vec<u64> {
         subscriber.queue_log_coverage_attestation();
         subscriber
@@ -26231,18 +26233,18 @@ mod log_coverage_attestation_tests {
 #[cfg(all(test, feature = "reactive-ws"))]
 mod canonical_head_suppression_tests {
     use super::*;
-    use alloy_provider::ProviderBuilder;
-    use alloy_rpc_types_eth::{Block, Header as RpcHeader};
-    use alloy_transport::mock::Asserter;
+    use crate::alloy_provider::ProviderBuilder;
+    use crate::alloy_rpc_types_eth::{Block, Header as RpcHeader};
+    use crate::alloy_transport::mock::Asserter;
 
     fn sealed_head(number: u64) -> Block {
         Block::empty(RpcHeader {
             hash: B256::repeat_byte(number as u8),
-            inner: alloy_consensus::Header {
+            inner: crate::alloy_consensus::Header {
                 number,
                 parent_hash: B256::repeat_byte((number - 1) as u8),
                 timestamp: 1_700_000_000 + number,
-                ..alloy_consensus::Header::default()
+                ..crate::alloy_consensus::Header::default()
             },
             total_difficulty: None,
             size: None,
@@ -26251,7 +26253,7 @@ mod canonical_head_suppression_tests {
 
     fn subscriber(
         asserter: Asserter,
-    ) -> AlloySubscriber<impl alloy_provider::Provider<Ethereum> + Clone, Ethereum> {
+    ) -> AlloySubscriber<impl crate::alloy_provider::Provider<Ethereum> + Clone, Ethereum> {
         let provider = ProviderBuilder::new().connect_mocked_client(asserter);
         let mut subscriber = AlloySubscriber::<_, Ethereum>::new(
             provider,

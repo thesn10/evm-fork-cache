@@ -15,9 +15,9 @@ mod common;
 
 use std::sync::Arc;
 
-use alloy_network::Ethereum;
+use evm_fork_cache::alloy_network::Ethereum;
 use alloy_primitives::{Address, B256, Bytes, Log as PrimitiveLog, U256};
-use alloy_rpc_types_eth::{Filter, Log};
+use evm_fork_cache::alloy_rpc_types_eth::{Filter, Log};
 use anyhow::Result;
 
 use common::setup_cache;

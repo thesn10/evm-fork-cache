@@ -448,7 +448,7 @@ fn decode_hex_bytecode(bytecode_hex: &str) -> Result<Bytes> {
 mod tests {
     use super::*;
     use alloy_primitives::U256;
-    use revm::state::{AccountInfo, Bytecode};
+    use crate::revm::state::{AccountInfo, Bytecode};
     use std::{
         sync::Arc,
         time::{SystemTime, UNIX_EPOCH},
@@ -625,9 +625,9 @@ mod tests {
     }
 
     fn setup_cache() -> EvmCache {
-        use alloy_provider::{RootProvider, network::AnyNetwork};
-        use alloy_rpc_client::RpcClient;
-        use alloy_transport::mock::Asserter;
+        use crate::alloy_provider::{RootProvider, network::AnyNetwork};
+        use crate::alloy_rpc_client::RpcClient;
+        use crate::alloy_transport::mock::Asserter;
 
         let asserter = Asserter::new();
         let client = RpcClient::mocked(asserter);

@@ -29,8 +29,8 @@ use alloy_sol_types::SolCall;
 use anyhow::Result;
 use evm_fork_cache::cache::EvmOverlay;
 use evm_fork_cache::{BundleOptions, BundleTx, RevertPolicy, TxConfig};
-use revm::context::result::ExecutionResult;
-use revm::state::AccountInfo;
+use evm_fork_cache::revm::context::result::ExecutionResult;
+use evm_fork_cache::revm::state::AccountInfo;
 
 fn transfer(to: Address, amount: u64) -> Bytes {
     Bytes::from(

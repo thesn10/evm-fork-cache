@@ -29,9 +29,9 @@ use std::{
 
 use alloy_primitives::{Address, B256, address, keccak256};
 #[cfg(feature = "reactive-ws")]
-use alloy_provider::WsConnect;
-use alloy_provider::{Provider, ProviderBuilder};
-use alloy_rpc_types_eth::{Filter, Log};
+use evm_fork_cache::alloy_provider::WsConnect;
+use evm_fork_cache::alloy_provider::{Provider, ProviderBuilder};
+use evm_fork_cache::alloy_rpc_types_eth::{Filter, Log};
 use anyhow::{Context, Result, bail};
 use evm_fork_cache::reactive::{
     AlloySubscriber, ChainStatus, EventSubscriber, InputSource, LogInterest, ReactiveInput,

@@ -14,7 +14,7 @@ use std::collections::HashMap;
 use std::path::Path;
 
 use alloy_primitives::Address;
-use foundry_fork_db::BlockchainDb;
+use crate::foundry_fork_db::BlockchainDb;
 use serde::{Deserialize, Serialize};
 
 use super::versioned;
@@ -104,8 +104,8 @@ impl BytecodeCache {
 mod tests {
     use super::*;
     use alloy_primitives::{Bytes, U256};
-    use foundry_fork_db::cache::BlockchainDbMeta;
-    use revm::state::{AccountInfo, Bytecode};
+    use crate::foundry_fork_db::cache::BlockchainDbMeta;
+    use crate::revm::state::{AccountInfo, Bytecode};
 
     fn temp_path(tag: &str) -> std::path::PathBuf {
         // Keyed by pid so concurrent `cargo test` processes never share (and

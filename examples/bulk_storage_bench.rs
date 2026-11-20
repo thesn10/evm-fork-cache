@@ -46,12 +46,19 @@
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
-use alloy_eips::{BlockId, BlockNumberOrTag};
+use evm_fork_cache::alloy_eips::{BlockId, BlockNumberOrTag};
 use alloy_primitives::{Address, Bytes, I256, U256, address, hex, keccak256};
-use alloy_provider::network::AnyNetwork;
-use alloy_provider::{Provider, RootProvider};
-use alloy_rpc_client::RpcClient;
+use evm_fork_cache::alloy_provider::network::AnyNetwork;
+use evm_fork_cache::alloy_provider::{Provider, RootProvider};
+use evm_fork_cache::alloy_rpc_client::RpcClient;
+#[cfg(feature = "alloy1")]
 use alloy_transport_http::Http;
+#[cfg(feature = "alloy2")]
+use alloy2_transport_http::Http;
+#[cfg(feature = "alloy1")]
+use reqwest as http_client;
+#[cfg(feature = "alloy2")]
+use reqwest2 as http_client;
 use anyhow::{Context, Result, bail};
 use evm_fork_cache::bulk_storage::{
     BulkCallConfig, CallDispatch, STORAGE_EXTRACTOR_CODE, StorageProgram,
@@ -106,7 +113,7 @@ fn env_usize(name: &str, default: usize) -> usize {
 }
 
 fn make_provider(rpc_url: &str, gzip: bool) -> Result<Arc<RootProvider<AnyNetwork>>> {
-    let mut builder = reqwest::Client::builder();
+    let mut builder = http_client::Client::builder();
     builder = if gzip {
         builder.gzip(true)
     } else {

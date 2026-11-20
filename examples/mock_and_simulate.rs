@@ -26,7 +26,7 @@ use alloy_sol_types::{SolCall, sol};
 use anyhow::Result;
 use evm_fork_cache::CallTracer;
 use evm_fork_cache::cache::TxConfig;
-use revm::context::result::ExecutionResult;
+use evm_fork_cache::revm::context::result::ExecutionResult;
 
 sol! {
     interface IErc20 {

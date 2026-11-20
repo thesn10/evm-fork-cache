@@ -8,11 +8,11 @@
 
 mod common;
 
-use alloy_eips::eip2930::{AccessList, AccessListItem};
+use evm_fork_cache::alloy_eips::eip2930::{AccessList, AccessListItem};
 use alloy_primitives::{Address, B256, Bytes, I256, U256, keccak256};
 use alloy_sol_types::{SolCall, SolValue};
 use anyhow::{Context, Result};
-use revm::{
+use evm_fork_cache::revm::{
     context::result::ExecutionResult,
     state::{AccountInfo, Bytecode},
 };
@@ -144,9 +144,13 @@ async fn tx_config_access_list_changes_eip2929_gas_accounting() -> Result<()> {
 
     let calldata = Bytes::from(MockERC20::balanceOfCall { account: owner }.abi_encode());
 
-    let gas_of = |result: ExecutionResult| match result {
-        ExecutionResult::Success { gas_used, .. } => gas_used,
-        other => panic!("balanceOf did not succeed: {other:?}"),
+    #[allow(deprecated)]
+    let gas_of = |result: ExecutionResult| {
+        assert!(
+            result.is_success(),
+            "balanceOf did not succeed: {result:?}"
+        );
+        result.gas_used()
     };
 
     // No access list: the `balanceOf` SLOAD pays the cold (2100-gas) cost.
@@ -308,10 +312,12 @@ async fn balance_delta_target_gas_matches_unwarmed_call() -> Result<()> {
         .abi_encode(),
     );
     let baseline = cache.call_raw(owner, token, transfer_call.clone(), false)?;
-    let baseline_gas = match baseline {
-        ExecutionResult::Success { gas_used, .. } => gas_used,
-        other => panic!("baseline transfer should succeed: {other:?}"),
-    };
+    assert!(
+        baseline.is_success(),
+        "baseline transfer should succeed: {baseline:?}"
+    );
+    #[allow(deprecated)]
+    let baseline_gas = baseline.gas_used();
 
     let result = cache.simulate_call_with_balance_deltas(
         owner,

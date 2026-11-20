@@ -21,8 +21,8 @@
 use std::collections::HashMap;
 
 use alloy_primitives::{Address, B256, I256, Log, U256};
-use revm::Inspector;
-use revm::interpreter::InterpreterTypes;
+use crate::revm::Inspector;
+use crate::revm::interpreter::InterpreterTypes;
 
 /// ERC20 `Transfer` event signature: `keccak256("Transfer(address,address,uint256)")`.
 ///

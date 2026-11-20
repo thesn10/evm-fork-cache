@@ -8,13 +8,13 @@ mod common;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use alloy_eips::BlockId;
+use evm_fork_cache::alloy_eips::BlockId;
 use alloy_primitives::{Address, Bytes, U256, keccak256};
 use alloy_sol_types::{SolCall, SolValue};
 use anyhow::Result;
 use evm_fork_cache::cache::{EvmCache, EvmOverlay, StorageBatchFetchFn};
-use revm::context::result::ExecutionResult;
-use revm::state::AccountInfo;
+use evm_fork_cache::revm::context::result::ExecutionResult;
+use evm_fork_cache::revm::state::AccountInfo;
 
 use common::{MOCK_ERC20_BALANCE_SLOT, MockERC20, mock_erc20_runtime, setup_cache};
 

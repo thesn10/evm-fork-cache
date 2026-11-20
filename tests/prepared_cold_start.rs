@@ -6,12 +6,12 @@ mod common;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 
-use alloy_eips::BlockId;
-use alloy_network::AnyNetwork;
+use evm_fork_cache::alloy_eips::BlockId;
+use evm_fork_cache::alloy_network::AnyNetwork;
 use alloy_primitives::{Address, B256, Bytes, U256, keccak256};
-use alloy_provider::RootProvider;
-use alloy_rpc_client::RpcClient;
-use alloy_transport::mock::Asserter;
+use evm_fork_cache::alloy_provider::RootProvider;
+use evm_fork_cache::alloy_rpc_client::RpcClient;
+use evm_fork_cache::alloy_provider::mock::Asserter;
 use anyhow::Result;
 
 use evm_fork_cache::cache::{

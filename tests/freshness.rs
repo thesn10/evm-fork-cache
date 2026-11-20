@@ -10,7 +10,7 @@ mod common;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
-use alloy_eips::BlockId;
+use evm_fork_cache::alloy_eips::BlockId;
 use alloy_primitives::{Address, Bytes, U256};
 use alloy_sol_types::SolCall;
 use anyhow::Result;
@@ -27,7 +27,7 @@ use evm_fork_cache::freshness::{
     AlwaysVerify, BlockClock, FreshnessController, FreshnessParams, FreshnessRegistry, NeverVerify,
     ObservationDriven, SimRequest, Validation, WallClock,
 };
-use revm::state::{AccountInfo, Bytecode};
+use evm_fork_cache::revm::state::{AccountInfo, Bytecode};
 
 /// Runtime bytecode that returns `blockhash(0)`:
 /// `PUSH1 0 BLOCKHASH PUSH1 0 MSTORE PUSH1 32 PUSH1 0 RETURN`.
@@ -325,7 +325,7 @@ async fn overlay_override_slot_takes_precedence() -> Result<()> {
     let mut overlay = EvmOverlay::new(snapshot, None);
     overlay.override_slot(contract, slot, U256::from(999));
 
-    use revm::database_interface::Database;
+    use evm_fork_cache::revm::database_interface::Database;
     assert_eq!(overlay.storage(contract, slot)?, U256::from(999));
 
     Ok(())
@@ -977,7 +977,7 @@ async fn run_corrected_rerun_verifies_newly_read_volatile_slot() -> Result<()> {
     // NEW volatile slot the optimistic run never touched. That slot must itself
     // be fetched and diffed (fixed-point), or the "corrected" result would still
     // rest on stale snapshot state.
-    use revm::state::{AccountInfo, Bytecode};
+    use evm_fork_cache::revm::state::{AccountInfo, Bytecode};
 
     let mut cache = setup_cache().await?;
     install_default_account(&mut cache, Address::ZERO);
@@ -1063,8 +1063,8 @@ async fn run_corrected_rerun_verifies_newly_read_volatile_slot() -> Result<()> {
 async fn overlay_call_with_tx_config_threads_value() -> Result<()> {
     // F3 regression: the overlay must honor TxConfig.value, not hardcode zero.
     use evm_fork_cache::cache::TxConfig;
-    use revm::context::result::ExecutionResult;
-    use revm::state::{AccountInfo, Bytecode};
+    use evm_fork_cache::revm::context::result::ExecutionResult;
+    use evm_fork_cache::revm::state::{AccountInfo, Bytecode};
 
     let mut cache = setup_cache().await?;
     install_default_account(&mut cache, Address::ZERO);
@@ -1158,7 +1158,7 @@ async fn run_honors_tx_gas_limit() -> Result<()> {
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn validator_fetches_at_captured_latest_pin_despite_repin() -> Result<()> {
-    use alloy_eips::BlockNumberOrTag;
+    use evm_fork_cache::alloy_eips::BlockNumberOrTag;
 
     let token = Address::repeat_byte(0x91);
     let owner = Address::repeat_byte(0x92);
@@ -1238,7 +1238,7 @@ async fn validator_fetches_at_snapshot_block_despite_repin() -> Result<()> {
     // was built from, even if the cache is re-pinned while validation is pending.
     // Otherwise it would compare snapshot(N) values against fresh(N+1) values and
     // emit a spurious Corrected.
-    use alloy_eips::BlockNumberOrTag;
+    use evm_fork_cache::alloy_eips::BlockNumberOrTag;
 
     let token = Address::repeat_byte(0x11);
     let owner = Address::repeat_byte(0x22);
@@ -1754,7 +1754,7 @@ async fn validate_returns_err_on_fetcher_panic() -> Result<()> {
 // "no storage batch fetcher available" reason.
 #[tokio::test(flavor = "multi_thread")]
 async fn run_unverified_without_fetcher() -> Result<()> {
-    use revm::primitives::hardfork::SpecId;
+    use evm_fork_cache::revm::primitives::hardfork::SpecId;
 
     let token = Address::repeat_byte(0x44);
     let owner = Address::repeat_byte(0x55);
@@ -1832,7 +1832,7 @@ async fn observation_driven_controller_end_to_end() -> Result<()> {
 
     // Use a predicted access list so the policy actually receives the slot as a
     // candidate (the predicted set drives policy.select).
-    use alloy_eips::eip2930::{AccessList, AccessListItem};
+    use evm_fork_cache::alloy_eips::eip2930::{AccessList, AccessListItem};
     let predicted = AccessList(vec![AccessListItem {
         address: token,
         storage_keys: vec![alloy_primitives::B256::from(slot)],
@@ -1982,7 +1982,7 @@ fn chained_sload_bytecode(n: u8) -> Bytes {
 /// queue no corrections.
 #[tokio::test(flavor = "multi_thread")]
 async fn run_unverified_when_fixed_point_round_cap_exceeded() -> Result<()> {
-    use revm::state::{AccountInfo, Bytecode};
+    use evm_fork_cache::revm::state::{AccountInfo, Bytecode};
 
     let mut cache = setup_cache().await?;
     install_default_account(&mut cache, Address::ZERO);

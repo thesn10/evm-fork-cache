@@ -1,9 +1,9 @@
 use std::time::Duration;
 
-use alloy_network::Ethereum;
+use evm_fork_cache::alloy_network::Ethereum;
 use alloy_primitives::{B256, Bytes, keccak256};
-use alloy_provider::ProviderBuilder;
-use alloy_transport::mock::Asserter;
+use evm_fork_cache::alloy_provider::ProviderBuilder;
+use evm_fork_cache::alloy_provider::mock::Asserter;
 use criterion::{BatchSize, Criterion, SamplingMode, Throughput, criterion_group, criterion_main};
 use evm_fork_cache::reactive::{
     AlloySubscriber, PreconfirmationMode, ProviderRef, RawJsonFlashblocksAdapter,

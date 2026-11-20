@@ -541,7 +541,7 @@ async fn reconcile_errors_without_fetcher() -> Result<()> {
 async fn ingest_keeps_state_fresh_with_zero_fetches() -> Result<()> {
     use std::sync::atomic::{AtomicUsize, Ordering};
 
-    use alloy_eips::BlockId;
+    use evm_fork_cache::alloy_eips::BlockId;
     use common::{balance_of, install_default_account};
     use evm_fork_cache::cache::StorageBatchFetchFn;
 

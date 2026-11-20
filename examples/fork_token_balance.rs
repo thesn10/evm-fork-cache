@@ -15,8 +15,8 @@ use std::sync::Arc;
 use std::time::Instant;
 
 use alloy_primitives::{Address, address};
-use alloy_provider::ProviderBuilder;
-use alloy_provider::network::AnyNetwork;
+use evm_fork_cache::alloy_provider::ProviderBuilder;
+use evm_fork_cache::alloy_provider::network::AnyNetwork;
 use anyhow::Result;
 use evm_fork_cache::cache::EvmCache;
 

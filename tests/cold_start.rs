@@ -21,11 +21,11 @@ mod common;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
-use alloy_eips::BlockId;
+use evm_fork_cache::alloy_eips::BlockId;
 use alloy_primitives::{Address, B256, Bytes, U256, keccak256};
 use alloy_sol_types::{SolCall, SolValue};
 use anyhow::Result;
-use revm::primitives::hardfork::SpecId;
+use evm_fork_cache::revm::primitives::hardfork::SpecId;
 
 use evm_fork_cache::cache::{EvmCache, StorageBatchFetchFn};
 use evm_fork_cache::cold_start::{

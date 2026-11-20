@@ -13,10 +13,10 @@ use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
 use std::sync::Arc;
 
-use alloy_eips::eip2930::{AccessList, AccessListItem};
+use crate::alloy_eips::eip2930::{AccessList, AccessListItem};
 use alloy_primitives::{Address, B256, Bytes, TxKind, U256};
-use foundry_fork_db::{DatabaseError, SharedBackend};
-use revm::{
+use crate::foundry_fork_db::{DatabaseError, SharedBackend};
+use crate::revm::{
     Context, ExecuteCommitEvm, ExecuteEvm, InspectEvm, MainBuilder, MainContext,
     context::{BlockEnv, CfgEnv, Journal, LocalContext, TxEnv, result::ExecutionResult},
     database_interface::{Database, DatabaseRef},
@@ -41,23 +41,23 @@ struct SimulationCancellationInspector {
     token: SimulationCancellationToken,
 }
 
-impl<CTX, INTR> revm::Inspector<CTX, INTR> for SimulationCancellationInspector
+impl<CTX, INTR> crate::revm::Inspector<CTX, INTR> for SimulationCancellationInspector
 where
-    INTR: revm::interpreter::InterpreterTypes,
+    INTR: crate::revm::interpreter::InterpreterTypes,
 {
-    fn step(&mut self, interpreter: &mut revm::interpreter::Interpreter<INTR>, _context: &mut CTX) {
+    fn step(&mut self, interpreter: &mut crate::revm::interpreter::Interpreter<INTR>, _context: &mut CTX) {
         self.token.mark_started();
         if self.token.is_cancelled() {
-            interpreter.halt(revm::interpreter::InstructionResult::Stop);
+            interpreter.halt(crate::revm::interpreter::InstructionResult::Stop);
         }
     }
 }
 
-type OverlayEvm<'a> = revm::MainnetEvm<
+type OverlayEvm<'a> = crate::revm::MainnetEvm<
     Context<BlockEnv, TxEnv, CfgEnv, &'a mut EvmOverlay, Journal<&'a mut EvmOverlay>, ()>,
 >;
 
-type InspectorOverlayEvm<'a, INSP> = revm::MainnetEvm<
+type InspectorOverlayEvm<'a, INSP> = crate::revm::MainnetEvm<
     Context<BlockEnv, TxEnv, CfgEnv, &'a mut EvmOverlay, Journal<&'a mut EvmOverlay>, ()>,
     INSP,
 >;
@@ -388,7 +388,7 @@ impl EvmOverlay {
 
         let result = {
             let mut evm = self.build_evm_with_local(local);
-            use revm::context_interface::JournalTr;
+            use crate::revm::context_interface::JournalTr;
             let checkpoint = evm.journaled_state.checkpoint();
             let result = evm.transact_one(tx).map_err(OverlayError::transact);
             evm.journaled_state.checkpoint_revert(checkpoint);
@@ -605,7 +605,7 @@ impl EvmOverlay {
         let outcome = {
             let mut evm = self.build_evm_with_inspector_local(inspector, local);
 
-            use revm::context_interface::JournalTr;
+            use crate::revm::context_interface::JournalTr;
             let checkpoint = evm.journaled_state.checkpoint();
 
             let result = evm
@@ -613,46 +613,46 @@ impl EvmOverlay {
                 .map_err(|e| SimError::Other(SimHostError::transact(e)));
 
             match result {
-                Ok(ExecutionResult::Success {
-                    logs,
-                    gas_used,
-                    output,
-                    ..
-                }) => {
-                    let token_deltas = if let Some(token_list) = tokens {
-                        evm.inspector.balance_deltas_for_tokens(owner, token_list)
-                    } else {
-                        evm.inspector.balance_deltas(owner)
-                    };
+                Ok(res) => {
+                    let gas_used = crate::execution_gas_used(&res);
+                    match res {
+                        ExecutionResult::Success { logs, output, .. } => {
+                            let token_deltas = if let Some(token_list) = tokens {
+                                evm.inspector.balance_deltas_for_tokens(owner, token_list)
+                            } else {
+                                evm.inspector.balance_deltas(owner)
+                            };
 
-                    // Extract EIP-2930 access list from journaled state
-                    let access_list = extract_access_list(&evm.journaled_state.state);
+                            // Extract EIP-2930 access list from journaled state
+                            let access_list = extract_access_list(&evm.journaled_state.state);
 
-                    if commit {
-                        evm.commit_inner();
-                    } else {
-                        evm.journaled_state.checkpoint_revert(checkpoint);
+                            if commit {
+                                evm.commit_inner();
+                            } else {
+                                evm.journaled_state.checkpoint_revert(checkpoint);
+                            }
+
+                            Ok(CallSimulationResult {
+                                status: SimStatus::Success,
+                                gas_used,
+                                token_deltas,
+                                logs,
+                                access_list,
+                                output: output.into_data(),
+                            })
+                        }
+                        ExecutionResult::Revert { output, .. } => {
+                            evm.journaled_state.checkpoint_revert(checkpoint);
+                            Err(SimulationError::from_revert(gas_used, output).into())
+                        }
+                        ExecutionResult::Halt { reason, .. } => {
+                            evm.journaled_state.checkpoint_revert(checkpoint);
+                            Err(SimError::Halt {
+                                reason: format!("{reason:?}"),
+                                gas_used,
+                            })
+                        }
                     }
-
-                    Ok(CallSimulationResult {
-                        status: SimStatus::Success,
-                        gas_used,
-                        token_deltas,
-                        logs,
-                        access_list,
-                        output: output.into_data(),
-                    })
-                }
-                Ok(ExecutionResult::Revert { gas_used, output }) => {
-                    evm.journaled_state.checkpoint_revert(checkpoint);
-                    Err(SimulationError::from_revert(gas_used, output).into())
-                }
-                Ok(ExecutionResult::Halt { reason, gas_used }) => {
-                    evm.journaled_state.checkpoint_revert(checkpoint);
-                    Err(SimError::Halt {
-                        reason: format!("{reason:?}"),
-                        gas_used,
-                    })
                 }
                 Err(err) => {
                     evm.journaled_state.checkpoint_revert(checkpoint);
@@ -730,7 +730,7 @@ impl EvmOverlay {
         commit: bool,
     ) -> SimulationResult<(ExecutionResult, I)>
     where
-        I: for<'a> revm::Inspector<
+        I: for<'a> crate::revm::Inspector<
                 Context<
                     BlockEnv,
                     TxEnv,
@@ -772,7 +772,7 @@ impl EvmOverlay {
         let outcome = {
             let mut evm = self.build_evm_with_inspector_local(inspector, local);
 
-            use revm::context_interface::JournalTr;
+            use crate::revm::context_interface::JournalTr;
             let checkpoint = evm.journaled_state.checkpoint();
 
             match evm.inspect_one_tx(tx_env) {
@@ -877,7 +877,7 @@ impl EvmOverlay {
         let beneficiary = self
             .snapshot
             .coinbase
-            .unwrap_or_else(|| revm::context::BlockEnv::default().beneficiary);
+            .unwrap_or_else(|| crate::revm::context::BlockEnv::default().beneficiary);
         let pre_beneficiary_balance = self
             .basic(beneficiary)
             .map_err(|e| SimError::Other(SimHostError::database(e)))?
@@ -892,7 +892,7 @@ impl EvmOverlay {
         };
 
         let outcome = {
-            use revm::context_interface::JournalTr;
+            use crate::revm::context_interface::JournalTr;
             let mut evm = self.build_evm_with_local(local);
 
             // Outer checkpoint: the whole-bundle savepoint.
@@ -918,7 +918,7 @@ impl EvmOverlay {
                     }
                 };
 
-                let gas_used = result.gas_used();
+                let gas_used = crate::execution_gas_used(&result);
                 let reverted = !result.is_success();
                 let logs = result.logs().to_vec();
                 total_gas = total_gas.saturating_add(gas_used);
@@ -1097,7 +1097,7 @@ impl EvmOverlay {
 
         let outcome = {
             let mut evm = self.build_evm_with_local(local);
-            use revm::context_interface::JournalTr;
+            use crate::revm::context_interface::JournalTr;
             let checkpoint = evm.journaled_state.checkpoint();
             match evm.transact_one(tx_env) {
                 Ok(result) => {
@@ -1107,7 +1107,7 @@ impl EvmOverlay {
                             access_list.accounts.insert(*address);
                             let code_hash = account.info.code_hash;
                             if code_hash != B256::ZERO
-                                && code_hash != revm::primitives::KECCAK_EMPTY
+                                && code_hash != crate::revm::primitives::KECCAK_EMPTY
                             {
                                 access_list.code_hashes.insert(code_hash);
                             }
@@ -1195,7 +1195,7 @@ impl EvmOverlay {
 
         let outcome = {
             let mut evm = self.build_evm_with_inspector_local(inspector, local);
-            use revm::context_interface::JournalTr;
+            use crate::revm::context_interface::JournalTr;
             let checkpoint = evm.journaled_state.checkpoint();
             match evm.inspect_one_tx(tx_env) {
                 Ok(result) => {
@@ -1207,7 +1207,7 @@ impl EvmOverlay {
                                 access_list.accounts.insert(*address);
                                 let code_hash = account.info.code_hash;
                                 if code_hash != B256::ZERO
-                                    && code_hash != revm::primitives::KECCAK_EMPTY
+                                    && code_hash != crate::revm::primitives::KECCAK_EMPTY
                                 {
                                     access_list.code_hashes.insert(code_hash);
                                 }
@@ -1491,8 +1491,8 @@ impl EvmOverlay {
     }
 }
 
-impl revm::database_interface::DatabaseCommit for EvmOverlay {
-    fn commit(&mut self, changes: alloy_primitives::map::HashMap<Address, revm::state::Account>) {
+impl crate::revm::database_interface::DatabaseCommit for EvmOverlay {
+    fn commit(&mut self, changes: crate::revm::state::EvmState) {
         for (address, account) in changes {
             self.dirty_accounts.insert(address, account.info);
             let storage = self.dirty_storage.entry(address).or_default();
@@ -1598,7 +1598,7 @@ impl Database for EvmOverlay {
     }
 }
 
-fn extract_access_list(state: &revm::state::EvmState) -> AccessList {
+fn extract_access_list(state: &crate::revm::state::EvmState) -> AccessList {
     let items: Vec<AccessListItem> = state
         .iter()
         .filter(|(_, account)| account.is_touched())
@@ -1618,7 +1618,7 @@ fn extract_access_list(state: &revm::state::EvmState) -> AccessList {
 mod tests {
     use super::*;
     use crate::cache::snapshot::BaseState;
-    use revm::primitives::hardfork::SpecId;
+    use crate::revm::primitives::hardfork::SpecId;
     use std::collections::HashSet;
 
     /// Build a two-tier `EvmSnapshot` whose cold base holds the given accounts,

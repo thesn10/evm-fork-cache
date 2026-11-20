@@ -21,8 +21,8 @@
 use std::sync::Arc;
 
 use alloy_primitives::{Address, U256, address};
-use alloy_provider::ProviderBuilder;
-use alloy_provider::network::AnyNetwork;
+use evm_fork_cache::alloy_provider::ProviderBuilder;
+use evm_fork_cache::alloy_provider::network::AnyNetwork;
 use alloy_sol_types::sol;
 use anyhow::Result;
 use evm_fork_cache::cache::EvmCache;

@@ -11,7 +11,7 @@
 
 mod common;
 
-use alloy_network::Ethereum;
+use evm_fork_cache::alloy_network::Ethereum;
 use alloy_primitives::B256;
 use anyhow::Result;
 use common::setup_cache;
@@ -192,13 +192,13 @@ fn watermark_survives_a_state_snapshot_round_trip() {
 /// attestation that references it.
 fn header_record(point: BlockRef) -> ReactiveInputRecord<Ethereum> {
     ReactiveInputRecord::new(
-        ReactiveInput::BlockHeader(alloy_rpc_types_eth::Header {
+        ReactiveInput::BlockHeader(evm_fork_cache::alloy_rpc_types_eth::Header {
             hash: point.hash,
-            inner: alloy_consensus::Header {
+            inner: evm_fork_cache::alloy_consensus::Header {
                 number: point.number,
                 parent_hash: point.parent_hash.unwrap_or_default(),
                 timestamp: point.timestamp.unwrap_or_default(),
-                ..alloy_consensus::Header::default()
+                ..evm_fork_cache::alloy_consensus::Header::default()
             },
             total_difficulty: None,
             size: None,

@@ -17,10 +17,10 @@
 
 mod common;
 
-use alloy_consensus::{BlockHeader as _, Header};
-use alloy_eips::BlockId;
+use evm_fork_cache::alloy_consensus::{BlockHeader as _, Header};
+use evm_fork_cache::alloy_eips::BlockId;
 use alloy_primitives::{Address, B256, Bytes, Log as PrimitiveLog};
-use alloy_rpc_types_eth::Log;
+use evm_fork_cache::alloy_rpc_types_eth::Log;
 use anyhow::Result;
 
 use common::setup_cache;
@@ -101,7 +101,7 @@ async fn advance_block_refreshes_all_block_env_fields() -> Result<()> {
     // finding: env said N+1 while the SharedBackend still fetched at N).
     assert_eq!(
         cache.block(),
-        alloy_eips::BlockId::number(12_345),
+        evm_fork_cache::alloy_eips::BlockId::number(12_345),
         "advance_block must re-pin RPC fetches to the advanced block"
     );
     Ok(())
@@ -157,11 +157,11 @@ async fn advance_block_strict_rejects_incomplete_header() -> Result<()> {
 
 use std::sync::Arc;
 
-use alloy_network::{Ethereum, primitives::HeaderResponse as _};
-use alloy_provider::RootProvider;
-use alloy_provider::network::AnyNetwork;
-use alloy_rpc_client::RpcClient;
-use alloy_transport::mock::Asserter;
+use evm_fork_cache::alloy_network::{Ethereum, primitives::HeaderResponse as _};
+use evm_fork_cache::alloy_provider::RootProvider;
+use evm_fork_cache::alloy_provider::network::AnyNetwork;
+use evm_fork_cache::alloy_rpc_client::RpcClient;
+use evm_fork_cache::alloy_provider::mock::Asserter;
 use evm_fork_cache::EvmCacheBuilder;
 use evm_fork_cache::reactive::{
     BlockRef, ChainControl, ChainStatus, InputSource, ReactiveConfig, ReactiveContext,
@@ -181,8 +181,8 @@ fn mock_provider() -> Arc<RootProvider<AnyNetwork>> {
 async fn pinned_builder_captures_timestamp_from_fetched_header() -> Result<()> {
     let asserter = Asserter::new();
     let expected = header(12_345, Some(42));
-    let block: alloy_rpc_types_eth::Block =
-        alloy_rpc_types_eth::Block::empty(alloy_rpc_types_eth::Header::new(expected.clone()));
+    let block: evm_fork_cache::alloy_rpc_types_eth::Block =
+        evm_fork_cache::alloy_rpc_types_eth::Block::empty(evm_fork_cache::alloy_rpc_types_eth::Header::new(expected.clone()));
     asserter.push_success(&Some(block));
     let provider = Arc::new(RootProvider::<AnyNetwork>::new(RpcClient::mocked(asserter)));
 
@@ -236,12 +236,12 @@ async fn try_build_lenient_succeeds_without_header() -> Result<()> {
 
 /// Build the RPC-flavored `HeaderResponse` (`alloy_rpc_types_eth::Header`) that
 /// the `Ethereum` reactive runtime ingests, from the in-memory consensus header.
-fn rpc_header(number: u64, basefee: Option<u64>) -> alloy_rpc_types_eth::Header {
-    alloy_rpc_types_eth::Header::new(header(number, basefee))
+fn rpc_header(number: u64, basefee: Option<u64>) -> evm_fork_cache::alloy_rpc_types_eth::Header {
+    evm_fork_cache::alloy_rpc_types_eth::Header::new(header(number, basefee))
 }
 
 /// A canonical (`Included`) context for a block header at `number`.
-fn included_header_context(header: &alloy_rpc_types_eth::Header) -> ReactiveContext {
+fn included_header_context(header: &evm_fork_cache::alloy_rpc_types_eth::Header) -> ReactiveContext {
     let block = evm_fork_cache::reactive::BlockRef {
         number: header.number(),
         hash: header.hash(),

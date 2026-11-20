@@ -10,7 +10,7 @@ use crate::cold_start::error::ColdStartError;
 use crate::cold_start::roots::RootProbeOutcome;
 use crate::freshness::{SlotChange, SlotOutcome};
 
-use revm::context::result::ExecutionResult;
+use crate::revm::context::result::ExecutionResult;
 
 /// The outcome of executing one [`ColdStartPlan`](crate::cold_start::ColdStartPlan)
 /// round.
