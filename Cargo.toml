@@ -96,7 +96,7 @@ alloy-rlp = "0.3"
 alloy-rpc-client = { version = ">=1.0.38, <1.7", optional = true }
 alloy-rpc-types-eth = { version = ">=1.0.38, <1.7", optional = true }
 alloy-sol-types = ">=1.4, <2"
-alloy-transport-balancer = { version = "0.3.0", default-features = false }
+alloy-transport-balancer = { git = "https://github.com/thesn10/alloy-transport-balancer", branch = "main", default-features = false }
 
 alloy2-consensus = { package = "alloy-consensus", version = "2", optional = true }
 alloy2-contract = { package = "alloy-contract", version = "2", optional = true }
