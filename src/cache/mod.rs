@@ -5164,19 +5164,19 @@ impl EvmCache {
         let checkpoint = evm.journaled_state.checkpoint();
         match evm.transact_one(tx) {
             Ok(result) => {
-                // Extract access list from journaled state before reverting. After
-                // transact_one, journaled_state.state holds all touched accounts/slots.
+                // Extract access list from journaled state before reverting. Include every
+                // loaded account (not only `is_touched()`), since read-only DELEGATECALL
+                // targets (proxy implementations, diamond facets) are loaded without being
+                // marked touched in revm.
                 let mut access_list = StorageAccessList::default();
                 for (address, account) in evm.journaled_state.state.iter() {
-                    if account.is_touched() {
-                        access_list.accounts.insert(*address);
-                        let code_hash = account.info.code_hash;
-                        if code_hash != B256::ZERO && code_hash != revm::primitives::KECCAK_EMPTY {
-                            access_list.code_hashes.insert(code_hash);
-                        }
-                        for slot_key in account.storage.keys() {
-                            access_list.slots.insert((*address, *slot_key));
-                        }
+                    access_list.accounts.insert(*address);
+                    let code_hash = account.info.code_hash;
+                    if code_hash != B256::ZERO && code_hash != revm::primitives::KECCAK_EMPTY {
+                        access_list.code_hashes.insert(code_hash);
+                    }
+                    for slot_key in account.storage.keys() {
+                        access_list.slots.insert((*address, *slot_key));
                     }
                 }
                 evm.journaled_state.checkpoint_revert(checkpoint);

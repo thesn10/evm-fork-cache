@@ -1103,17 +1103,15 @@ impl EvmOverlay {
                 Ok(result) => {
                     let mut access_list = StorageAccessList::default();
                     for (address, account) in evm.journaled_state.state.iter() {
-                        if account.is_touched() {
-                            access_list.accounts.insert(*address);
-                            let code_hash = account.info.code_hash;
-                            if code_hash != B256::ZERO
-                                && code_hash != revm::primitives::KECCAK_EMPTY
-                            {
-                                access_list.code_hashes.insert(code_hash);
-                            }
-                            for slot_key in account.storage.keys() {
-                                access_list.slots.insert((*address, *slot_key));
-                            }
+                        access_list.accounts.insert(*address);
+                        let code_hash = account.info.code_hash;
+                        if code_hash != B256::ZERO
+                            && code_hash != revm::primitives::KECCAK_EMPTY
+                        {
+                            access_list.code_hashes.insert(code_hash);
+                        }
+                        for slot_key in account.storage.keys() {
+                            access_list.slots.insert((*address, *slot_key));
                         }
                     }
                     evm.journaled_state.checkpoint_revert(checkpoint);
@@ -1203,17 +1201,15 @@ impl EvmOverlay {
                     let mut access_list = StorageAccessList::default();
                     if !cancelled {
                         for (address, account) in evm.journaled_state.state.iter() {
-                            if account.is_touched() {
-                                access_list.accounts.insert(*address);
-                                let code_hash = account.info.code_hash;
-                                if code_hash != B256::ZERO
-                                    && code_hash != revm::primitives::KECCAK_EMPTY
-                                {
-                                    access_list.code_hashes.insert(code_hash);
-                                }
-                                for slot_key in account.storage.keys() {
-                                    access_list.slots.insert((*address, *slot_key));
-                                }
+                            access_list.accounts.insert(*address);
+                            let code_hash = account.info.code_hash;
+                            if code_hash != B256::ZERO
+                                && code_hash != revm::primitives::KECCAK_EMPTY
+                            {
+                                access_list.code_hashes.insert(code_hash);
+                            }
+                            for slot_key in account.storage.keys() {
+                                access_list.slots.insert((*address, *slot_key));
                             }
                         }
                     }
@@ -1800,5 +1796,64 @@ mod tests {
         let mut overlay = EvmOverlay::new(snapshot, None);
         assert_eq!(overlay.block_hash(42).unwrap(), hash);
         assert_eq!(overlay.block_hash(99).unwrap(), B256::ZERO);
+    }
+
+    #[test]
+    fn test_overlay_access_list_includes_read_only_delegatecall_target() {
+        let proxy = Address::repeat_byte(0x11);
+        let impl_addr = Address::repeat_byte(0x22);
+        let caller = Address::repeat_byte(0x33);
+
+        // Proxy: DELEGATECALL(gas, impl_addr, 0, 0, 0, 0); STOP
+        let mut proxy_bytes = vec![0x60, 0x00, 0x60, 0x00, 0x60, 0x00, 0x60, 0x00, 0x73];
+        proxy_bytes.extend_from_slice(impl_addr.as_slice());
+        proxy_bytes.extend_from_slice(&[0x5a, 0xf4, 0x00]);
+        let proxy_code = Bytecode::new_raw(Bytes::from(proxy_bytes));
+        let impl_code = Bytecode::new_raw(Bytes::from(vec![0x00]));
+
+        let proxy_hash = proxy_code.hash_slow();
+        let impl_hash = impl_code.hash_slow();
+
+        let mut accounts = HashMap::new();
+        accounts.insert(
+            proxy,
+            AccountInfo {
+                balance: U256::ZERO,
+                nonce: 1,
+                code_hash: proxy_hash,
+                code: Some(proxy_code.clone()),
+                ..Default::default()
+            },
+        );
+        accounts.insert(
+            impl_addr,
+            AccountInfo {
+                balance: U256::ZERO,
+                nonce: 1,
+                code_hash: impl_hash,
+                code: Some(impl_code.clone()),
+                ..Default::default()
+            },
+        );
+
+        let mut code_by_hash = HashMap::new();
+        code_by_hash.insert(proxy_hash, proxy_code);
+        code_by_hash.insert(impl_hash, impl_code);
+
+        let snapshot = snap(accounts, HashMap::new(), code_by_hash, HashMap::new());
+        let mut overlay = EvmOverlay::new(snapshot, None);
+
+        let (result, access_list) = overlay
+            .call_raw_with_access_list(caller, proxy, Bytes::new())
+            .expect("delegatecall succeeds");
+        assert!(result.is_success());
+        assert!(
+            access_list.accounts.contains(&impl_addr),
+            "read-only DELEGATECALL implementation must be in access_list.accounts"
+        );
+        assert!(
+            access_list.code_hashes.contains(&impl_hash),
+            "read-only DELEGATECALL implementation code hash must be recorded"
+        );
     }
 }
